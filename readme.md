@@ -80,3 +80,26 @@ python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_
 ```
 
 ### Inference on held-out testset
+
+1. To perform inference on an image from held-out testset based on best model from fine-tuning Grounding Dino, update the following variables `config_path, checkpoint_path, test_image_path, pred_save_path` in the script `inference/inference_groundingDino.py` and run the below command,
+
+```
+python inference_groundingDino.py
+```
+The predictions for the image is now saved in `inference/predictions` in .pt format. To visualize along with respective ground truth annotations for the same image, update the following variables `pred_bboxes, pred_scores, pred_labels, gt_file, test_image_path` in the script `inference/prediction_visualization.py` and run the below command,
+
+```
+python prediction_visualization.py
+```
+The plots are saved in `inference/visualization`
+
+2. To perform inference based on best model from Retinanet and Yolov8, follow the same procedure as above but run the respective inference scripts of Retinanet and Yolov8.
+
+```
+# Perform inference based on Retinanet
+python inference_retinaney.py
+
+# Perform inference based on Yolov8
+python inference_yolov8.py
+```
+For visualization, follow the same process as described in step 1.
