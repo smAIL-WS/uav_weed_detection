@@ -7,8 +7,8 @@ conda activate mmdet_env
 
 conda install pytorch torchvision -c pytorch
 
-pip install sympy==1.13.1 fsspec wandb optuna scikit-image
 pip install -U openmim
+pip install sympy==1.13.1 fsspec wandb optuna scikit-image
 mim install mmengine
 mim install "mmcv==2.1.0"
 

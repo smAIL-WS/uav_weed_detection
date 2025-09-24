@@ -1,6 +1,6 @@
 _base_ = 'yolov8_s_syncbn_fast_8xb16-500e_coco.py'
 
-data_root = 'mmyolo/data/ewis/'
+data_root = '/home/hsubramanian/uav_weed_detection/mmdetection/data/ewis/fold1/'
 class_name = ('crop', 'weed')
 num_classes = len(class_name)
 metainfo = dict(classes=class_name, palette=[(220, 20, 60), (220, 20, 60)])
