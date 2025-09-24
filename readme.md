@@ -48,11 +48,10 @@ mim install -v -e .
 
 ## Dataset preparation
 
-1. Ensure that the cropped dataset for training, validation and testing is present in  
-`mmdetection/data/ewis/{train_images, val_images, test_images}/` respectively. 
-2. Ensure that annotations for the images in training, validation and testset is present in .json format. For example, 
-`mmdetection/data/ewis/{train,val,test}.json`. 
-3. Additionally, include three `.txt` files listing image names for each split. For example, `mmdetection/data/ewis/{train,val,test}.txt`
+1. Ensure that the cropped dataset for training, validation and testing is present in  `{mmdetection,mmyolo}/data/ewis/{train_images, val_images, test_images}/` respectively. 
+2. Ensure that annotations for the images in training, validation and testset is present in .json format. For example, `{mmdetection,mmyolo}/data/ewis/{train,val,test}.json`. 
+3. Additionally, include three `.txt` files listing image names for each split. For example, `{mmdetection,mmyolo}/data/ewis/{train,val,test}.txt`
+4. The sample training, validation and testset required to run the training process can be found in `sample_ewis_data/`.
 
 
 ## Training models

@@ -5,7 +5,7 @@ _base_ = [
 
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'mmdetection/data/ewis/fold1/'
+data_root = 'mmdetection/data/ewis/'
 class_name = ('crop','weed')
 num_classes = len(class_name)
 metainfo = dict(classes=class_name, palette=[(220, 20, 60), (220, 20, 60)])

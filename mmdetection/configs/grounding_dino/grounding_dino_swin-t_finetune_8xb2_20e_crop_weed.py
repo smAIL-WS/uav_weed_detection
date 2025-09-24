@@ -1,7 +1,7 @@
 _base_ = 'grounding_dino_swin-t_finetune_16xb2_1x_coco.py'
 
 
-data_root = 'mmdetection/data/ewis/fold1/'
+data_root = 'mmdetection/data/ewis/'
 class_name = ('crop','weed')
 num_classes = len(class_name)
 metainfo = dict(classes=class_name, palette=[(220, 20, 60), (220, 20, 60)])
