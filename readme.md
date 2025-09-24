@@ -1,6 +1,9 @@
-This repository includes implementation of finetuning Grounding Dino, training retinanet and yolov8 on custom dataset based on MMDetection framework.
+# Repository Overview
+This repository presents implementations for fine-tuning **Grounding DINO**, and training **Retinanet** and **Yolov8** on a custom dataset, based on the **MMDetection** framework.
 
-### Installation procedure
+## Installation
+
+### Grounding DINO / Retinanet (MMDetection)
 ```
 conda create -n mmdet_env python=3.10
 conda activate mmdet_env
@@ -24,7 +27,7 @@ pip install -r requirements/multimodal.txt
 ```
 
 
-#### Installation procedure for YOLOv8
+### Yolov8
 ```
 conda create -n mmyolo_env python=3.8 pytorch==1.10.1 torchvision==0.11.2 cudatoolkit=11.3 -c pytorch -y
 conda activate mmyolo_env
@@ -43,63 +46,58 @@ pip install -r requirements/albu.txt
 mim install -v -e .
 ```
 
-#### Preprocessing steps
+## Dataset preparation
 
-1. Ensure that the cropped dataset for training, validation and testing is present in the folder `mmdetection/data/ewis/train_images/`,  `mmdetection/data/ewis/val_images/` and `mmdetection/data/ewis/test_images/` respectively. 
-2. Ensure that annotations for the images in training, validation and testset is also present in the folder `mmdetection/data/ewis` in .json format. For example, `mmdetection/data/ewis/{train,val,test}.json`. It is also important to have three more .txt files which contains the image names of the all the three datasets. For example, `mmdetection/data/ewis/{train,val,test}.txt`
-3. Image pre-processing scripts from `preprocessing/` folder can be used which creates cropped datasets based on CV splits used in the original paper (`preprocessing/create_cropped_dataset.py`), create samples of training set for data efficiency experiments (`preprocessing/create_samples.py`) and creates image names for .txt files (`preprocessing/create_annotation_txt_file.py`). 
+1. Ensure that the cropped dataset for training, validation and testing is present in  
+`mmdetection/data/ewis/{train_images, val_images, test_images}/` respectively. 
+2. Ensure that annotations for the images in training, validation and testset is present in .json format. For example, 
+`mmdetection/data/ewis/{train,val,test}.json`. 
+3. Additionally, include three `.txt` files listing image names for each split. For example, `mmdetection/data/ewis/{train,val,test}.txt`
+
 
 ### Training models
 
-1. Activate the respective conda environment.
+1. Activate the appropriate conda environment.
 
 ```
-# To fine-tune Grounding DINO or to train Retinanet from scratch
+# For Grounding DINO or Retinanet
 conda activate mmdet_env
 
-# To train Yolov8 from scratch
+# For Yolov8
 conda activate mmyolo
 ```
 
-2. To fine-tune Grounding DINO
+2. Train models
 ```
+# Fine-tune Grounding DINO
 python mmdetection/tools/train.py mmdetection/configs/grounding_dino/grounding_dino_swin-t_finetune_8xb2_20e_crop_weed.py
 
-```
-
-3. To train Retinanet from scratch
-```
+# Train Retinanet from scratch
 python mmdetection/tools/train.py mmdetection/configs/retinanet/retinanet_r50_fpn_2x_coco_crop_weed.py
 
-```
-
-4. To train Yolov8 from scratch
-```
+# Train Yolov8 from scratch
 python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_weed.py
-
 ```
 
 ### Inference on held-out testset
 
-1. To perform inference on an image from held-out testset based on best model from fine-tuning Grounding Dino, update the following variables `config_path, checkpoint_path, test_image_path, pred_save_path` in the script `inference/inference_groundingDino.py` and run the below command,
+1. To perform inference on an image from held-out testset based on best model, update the following variables `config_path, checkpoint_path, test_image_path, pred_save_path` in the appropriate inference scripts `inference/inference_groundingDino.py` and run the below command,
 
 ```
+# For inference based on fine-tuned Grounding DINO
 python inference_groundingDino.py
+
+# For inference based on trained Retinanet
+python inference_retinaney.py
+
+# For inference based on trained Yolov8
+python inference_yolov8.py
 ```
-The predictions for the image is now saved in `inference/predictions` in .pt format. To visualize along with respective ground truth annotations for the same image, update the following variables `pred_bboxes, pred_scores, pred_labels, gt_file, test_image_path` in the script `inference/prediction_visualization.py` and run the below command,
+
+The predictions for the test image based on all the three models is now saved in `inference/predictions` in .pt format. 
+To visualize along with respective ground truth annotations and models for the same image, update the following variables `pred_bboxes, pred_scores, pred_labels, gt_file, test_image_path` in the script `inference/prediction_visualization.py` and run the below command,
 
 ```
 python prediction_visualization.py
 ```
 The plots are saved in `inference/visualization`
-
-2. To perform inference based on best model from Retinanet and Yolov8, follow the same procedure as above but run the respective inference scripts of Retinanet and Yolov8.
-
-```
-# Perform inference based on Retinanet
-python inference_retinaney.py
-
-# Perform inference based on Yolov8
-python inference_yolov8.py
-```
-For visualization, follow the same process as described in step 1.
