@@ -12,11 +12,11 @@ from mmdet.apis import init_detector
 from mmdet.structures import DetDataSample
 
 # Paths to config and checkpoint
-config_path = 'mmdetection/configs/retinanet/retinanet_r50_fpn_2x_coco_crop_weed.py'
-checkpoint_path = 'mmdetection/work_dirs/<checkpoint>.pth'
+config_path = '../mmdetection/configs/retinanet/retinanet_r50_fpn_2x_coco_crop_weed.py'
+checkpoint_path = '../work_dirs/retinanet_r50_fpn_2x_coco_crop_weed/epoch_3.pth'
 
-test_image_path = "./groundtruths/images/test_image.png"
-pred_save_path = "./predictions/"
+test_image_path = "groundtruths/images/Platte_20220520_Maize_048.png"
+pred_save_path = "predictions/"
 
 
 def load_retinanet_model(config_path, checkpoint_path, device='cuda:0'):

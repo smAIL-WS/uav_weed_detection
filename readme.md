@@ -13,7 +13,6 @@ mim install mmengine
 mim install "mmcv==2.1.0"
 
 
-git clone https://github.com/open-mmlab/mmdetection.git
 cd mmdetection
 pip install -v -e .
 # "-v" means verbose, or more output
@@ -30,12 +29,13 @@ pip install -r requirements/multimodal.txt
 conda create -n mmyolo_env python=3.8 pytorch==1.10.1 torchvision==0.11.2 cudatoolkit=11.3 -c pytorch -y
 conda activate mmyolo_env
 
-pip install albumentations==1.3.1 wandb regex optuna
+
 pip install openmim
+pip install albumentations==1.3.1 wandb regex optuna
 mim install "mmengine>=0.6.0"
 mim install "mmcv>=2.0.0rc4,<2.1.0"
 mim install "mmdet>=3.0.0,<4.0.0"
-git clone https://github.com/open-mmlab/mmyolo.git
+
 cd mmyolo
 # Install albumentations
 pip install -r requirements/albu.txt

@@ -32,7 +32,7 @@ def load_groundtruth_from_xml(xml_file, class_map={"crop": 0, "weed": 1}):
         bboxes.append([xmin, ymin, xmax, ymax])
         labels.append(cls_id)
 
-    return [bboxes], [labels]  # wrapped in list → per-image format
+    return bboxes, labels  # wrapped in list → per-image format
 
 
 
@@ -43,7 +43,7 @@ def plot_predictions(
     gt_bboxes, gt_labels,
     score_thresh=0.5,
     class_map={0: "crop", 1: "weed"},
-    save_dir="./visualizations"
+    save_dir="visualizations"
 ):
     """
     Plot ground truth and predictions side by side with a shared legend.
@@ -69,10 +69,10 @@ def plot_predictions(
             linewidth=2, edgecolor=color, facecolor="none"
         )
         axes[0].add_patch(rect)
-        axes[0].text(
-            xmin, ymin - 5, f"{cls_name}",
-            fontsize=12, color=color, weight="bold"
-        )
+        # axes[0].text(
+        #     xmin, ymin - 5, f"{cls_name}",
+        #     fontsize=12, color=color, weight="bold"
+        # )
     axes[0].axis("off")
 
     # --- Prediction Plot ---
@@ -83,8 +83,9 @@ def plot_predictions(
             continue
 
         xmin, ymin, xmax, ymax = bbox
+        xmin, ymin, xmax, ymax = xmin.cpu().numpy(), ymin.cpu().numpy(), xmax.cpu().numpy(), ymax.cpu().numpy()
         width, height = xmax - xmin, ymax - ymin
-        cls_name = class_map[label]
+        cls_name = class_map[label.cpu().item()]
         color = "blue" if cls_name == "crop" else "red"
 
         rect = patches.Rectangle(
@@ -92,10 +93,10 @@ def plot_predictions(
             linewidth=2, edgecolor=color, facecolor="none"
         )
         axes[1].add_patch(rect)
-        axes[1].text(
-            xmin, ymin - 5, f"{cls_name} ({score:.2f})",
-            fontsize=12, color=color, weight="bold"
-        )
+        # axes[1].text(
+        #     xmin, ymin - 5, f"{cls_name} ({score:.2f})",
+        #     fontsize=12, color=color, weight="bold"
+        # )
     axes[1].axis("off")
 
     # --- Shared Legend ---
@@ -119,16 +120,17 @@ def plot_predictions(
 
 
 # ==== Example usage ====
-pred_bboxes = torch.load('./predictions/full_pred_boxes_gd_best_config.pt')
-pred_scores = torch.load('./predictions/full_pred_scores_gd_best_config.pt')
-pred_labels = torch.load('./predictions/full_pred_labels_gd_best_config.pt')
-gt_file   = "./groundtruths/annotations/test_image.xml"
+pred_bboxes = torch.load('predictions/full_pred_boxes_gd_best_config.pt')
+pred_scores = torch.load('predictions/full_pred_scores_gd_best_config.pt')
+pred_labels = torch.load('predictions/full_pred_labels_gd_best_config.pt')
+gt_file   = "groundtruths/annotations/Platte_20220520_Maize_048.xml"
+
 
 # Load files
 gt_bboxes, gt_labels = load_groundtruth_from_xml(gt_file)
 
 # Example
-test_image_path = "./groundtruths/images/test_image.png"
+test_image_path = "groundtruths/images/Platte_20220520_Maize_048.png"
 
 # Plot only first image’s predictions
 plot_predictions(

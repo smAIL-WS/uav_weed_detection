@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 from glob import glob
 
 # Paths to config and checkpoint
-config_path = 'mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_weed.py'
-checkpoint_path = 'mmyolo/work_dirs/<checkpoint>.pth'
+config_path = '../mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_weed.py'
+checkpoint_path = '../work_dirs/yolov8_s_fast_1xb12-40e_crop_weed/epoch_1.pth'
 
-test_image_path = "./groundtruths/images/test_image.png"
-pred_save_path = "./predictions/"
+test_image_path = "groundtruths/images/Platte_20220520_Maize_048.png"
+pred_save_path = "predictions/"
 
 def load_yolov8_model(config_path, checkpoint_path, device='cuda:0'):
     """
