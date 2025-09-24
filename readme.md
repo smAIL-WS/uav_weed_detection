@@ -55,7 +55,7 @@ mim install -v -e .
 3. Additionally, include three `.txt` files listing image names for each split. For example, `mmdetection/data/ewis/{train,val,test}.txt`
 
 
-### Training models
+## Training models
 
 1. Activate the appropriate conda environment.
 
@@ -79,7 +79,7 @@ python mmdetection/tools/train.py mmdetection/configs/retinanet/retinanet_r50_fp
 python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_weed.py
 ```
 
-### Inference on held-out testset
+## Inference on held-out testset
 
 1. To perform inference on an image from held-out testset based on best model, update the following variables `config_path, checkpoint_path, test_image_path, pred_save_path` in the appropriate inference scripts `inference/inference_groundingDino.py` and run the below command,
 
@@ -95,6 +95,8 @@ python inference_yolov8.py
 ```
 
 The predictions for the test image based on all the three models is now saved in `inference/predictions` in .pt format. 
+
+## Visualization
 To visualize along with respective ground truth annotations and models for the same image, update the following variables `pred_bboxes, pred_scores, pred_labels, gt_file, test_image_path` in the script `inference/prediction_visualization.py` and run the below command,
 
 ```
