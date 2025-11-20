@@ -1,5 +1,14 @@
 # Repository Overview
-This repository presents implementations for fine-tuning **Grounding DINO**, and training **Retinanet** and **Yolov8** on a custom dataset, based on the **MMDetection** framework.
+This repository contains the codebase for our research on data-efficient weed detection using Grounding DINO, a fine-tuned foundation model designed for open-set object detection in agricultural environments. The project evaluates the model’s performance under varying levels of training data availability and compares it against state-of-the-art detectors such as RetinaNet and YOLOv8. Using expert-annotated UAV imagery from sorghum and maize fields, the study demonstrates that Grounding DINO can achieve robust and accurate weed detection even when fine-tuned with only a small number of representative images per crop growth stage. The repository includes all training pipelines, experimental configurations, and evaluation scripts to enable full reproducibility and support further research in precision agriculture.
+
+Figure 1: F1 score comparison for the class: *crop* and *weed* of our proposed Grounding DINO model with SOTA architectures across multiple training variants on the entire held-out testset.
+![](readme_images/F1score_dataefficiency.png)
+
+Figure 2: F1 score comparison for the class: *crop* and *weed* of our proposed Grounding DINO model across Progressive growth stage experiments on the entire held-out testset.
+![](readme_images/F1score_progressivegrowthstage.png)
+
+Figure 3. Qualitative analysis on held-out testset. The figures consist of multiple patches from the held-out testset across crop growth stages BBCH 13 to BBCH 17 in rows, while the columns correspond to: Ground Truth annotations (a), Grounding DINO predictions from the full dataset variant (b), Grounding DINO predictions from the quarter dataset variant (c), RetinaNet predictions from the full dataset variant (d), and Yolov8 predictions from the full dataset variant (e). Predicted bounding boxes are shown for detections with confidence greater than 0.5. The comparison between (b), (d), and (e) highlights the inter-model performance of Grounding DINO, RetinaNet, and Yolov8 trained on the full dataset. While all three models identify crops and weeds with reasonable accuracy, closer inspection reveals key differences. RetinaNet and Yolov8 often generate multiple bounding boxes for the same crop instance, which are not fully suppressed under the NMS threshold of 0.5, thereby increasing False Positives (FPs) and reducing precision. Moreover, RetinaNet occasionally misclassifies weeds as crops, whereas Yolov8 exhibits this issue more frequently. Grounding DINO, in contrast, produces fewer duplicate predictions and fewer misclassifications, though some False Negatives (FNs) are observed, likely due to predictions with confidence below 0.5. The comparison between (b) and (c) illustrates the intra-model performance of Grounding DINO. Despite being trained on only 14 images (quarter_dataset) compared to 56 images (full_dataset), the predictions of the quarter dataset variant remain largely consistent with those of the full dataset. Minor differences in confidence scores suggest that reduced training data may slightly lower prediction certainty, yet detection accuracy across growth stages remains largely unaffected, underscoring the data efficiency of Grounding DINO.
+![](readme_images/qualitative_analysis.png)
 
 ## Installation
 
@@ -45,6 +54,9 @@ pip install -r requirements/albu.txt
 # Install MMYOLO
 mim install -v -e .
 ```
+
+### Inference demo based on pretrained checkpoints
+
 
 ## Dataset preparation
 
