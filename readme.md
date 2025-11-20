@@ -55,7 +55,8 @@ pip install -r requirements/albu.txt
 mim install -v -e .
 ```
 
-### Inference demo based on pretrained checkpoints
+## Inference demo based on pretrained checkpoints
+Follow the instructions provided in the inference demo notebook to run inference on test image based on pre-trained checkpoints. The checkpoints are downloaded from Huggingface space. The demo notebook can be found in this path `inference/demo_inference_notebook.ipynb` 
 
 
 ## Dataset preparation
