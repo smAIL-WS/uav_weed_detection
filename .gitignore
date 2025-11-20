@@ -1,3 +1,6 @@
 work_dirs/
 preprocessing/
 checkpoints/
+*.png
+*.pth
+*.pt
