@@ -73,17 +73,36 @@ def crop_img(img, dst_folder, filename, xml_path, crop_size, coco_data, annotati
     
     orig_annotations = parse_xml_annotations(xml_path)
     
+    # We loop using the range, but we will handle the "over-hang" inside
     for i in range(0, h, crop_size):
         for j in range(0, w, crop_size):
-            img_crop = img[i:(i+crop_size), j:(j+crop_size), :]
+            # 1. Extract the actual available pixels
+            # This might be smaller than crop_size at the right/bottom edges
+            actual_crop = img[i:min(i + crop_size, h), j:min(j + crop_size, w), :]
+            curr_h, curr_w, _ = actual_crop.shape
+            
+            # 2. Initialize a black canvas of the full crop_size
+            # This handles the zero-padding automatically
+            img_padded = np.zeros((crop_size, crop_size, d), dtype=img.dtype)
+            
+            # 3. Paste the actual image onto the top-left of the canvas
+            img_padded[0:curr_h, 0:curr_w, :] = actual_crop
+            
+            # --- Processing & Saving ---
             savename = orig_name + f'_patch_{i//crop_size}_{j//crop_size}.png'
             savepath = os.path.join(dst_folder, savename)
             
-            img_crop = (img_crop - np.min(img_crop)) / (np.max(img_crop) - np.min(img_crop))
-            img_crop = (255 * img_crop).astype(np.uint8)
-            imsave(savepath, img_crop)
+            # Normalize and save
+            # Note: Using a robust min/max check to avoid division by zero in pure black patches
+            denom = (np.max(img_padded) - np.min(img_padded))
+            if denom > 0:
+                img_final = (255 * (img_padded - np.min(img_padded)) / denom).astype(np.uint8)
+            else:
+                img_final = img_padded.astype(np.uint8)
+                
+            cv2.imwrite(savepath, img_final)
             
-            # Add cropped image info
+            # Add image info (Width/Height are now guaranteed to be crop_size)
             coco_data["images"].append({
                 "id": image_id,
                 "file_name": savename,
@@ -91,31 +110,38 @@ def crop_img(img, dst_folder, filename, xml_path, crop_size, coco_data, annotati
                 "height": crop_size
             })
             
+            # --- Annotation Handling ---
             for ann in orig_annotations:
                 x_min, y_min, box_w, box_h = ann["bbox"]
                 x_max, y_max = x_min + box_w, y_min + box_h
                 
-                # Check if bounding box intersects with this crop
+                # Check intersection using original global coordinates
                 if (x_min < (j + crop_size) and x_max > j and
                     y_min < (i + crop_size) and y_max > i):
                     
-                    # Shift and clip bounding box coordinates relative to the crop
+                    # Shift coordinates relative to the crop start (i, j)
                     new_x_min = max(0, x_min - j)
                     new_y_min = max(0, y_min - i)
                     new_x_max = min(crop_size, x_max - j)
                     new_y_max = min(crop_size, y_max - i)
 
-                    # Ensure valid bbox dimensions
-                    new_width = max(0, new_x_max - new_x_min)
-                    new_height = max(0, new_y_max - new_y_min)
+                    # CLIP coordinates to the actual image pixels available 
+                    # If a box is in the padded (black) area, this makes it valid
+                    new_x_max = min(new_x_max, curr_w)
+                    new_y_max = min(new_y_max, curr_h)
 
+                    new_width = new_x_max - new_x_min
+                    new_height = new_y_max - new_y_min
+
+                    # Only add if the resulting box still has area 
+                    # (i.e., it wasn't entirely in the padded region)
                     if new_width > 0 and new_height > 0:
                         coco_data["annotations"].append({
                             "id": annotation_id,
                             "image_id": image_id,
                             "category_id": ann["category_id"],
                             "bbox": [new_x_min, new_y_min, new_width, new_height],
-                            "area": new_width * new_height,
+                            "area": float(new_width * new_height),
                             "iscrowd": 0
                         })
                         annotation_id += 1
@@ -206,8 +232,8 @@ crop_size = 512
 for i in range(len(fold_names)):
 
     if fold_names[i] != 'final_config_data':
-        all_img_path = sorted(glob("/sf_storage/Workspace/Harsha/EWIS_Dataset/new_half_v1/images/train/**/*.png",recursive=True))
-        all_xml_path = sorted(glob("/sf_storage/Workspace/Harsha/EWIS_Dataset/new_half_v1/annotations/train/**/*.xml",recursive=True))
+        all_img_path = sorted(glob("<specify_paths_to_images>/images/train/**/*.png",recursive=True))
+        all_xml_path = sorted(glob("<specify_paths_to_annotations>/annotations/train/**/*.xml",recursive=True))
         train_img_paths, train_xml_paths, val_img_paths, val_xml_paths, test_img_paths, test_xml_paths = train_val_test_paths(all_img_path, all_xml_path, fold_names[i])
 
         #Loading train_images and annotations
@@ -235,8 +261,8 @@ for i in range(len(fold_names)):
         process_images(test_img_paths, test_xml_paths, test_img_dst_folder, crop_size, test_output_json)
     
     else:
-        all_img_path = sorted(glob("/sf_storage/Workspace/Harsha/EWIS_Dataset/new_half_v1/images/train/**/*.png",recursive=True))
-        all_xml_path = sorted(glob("/sf_storage/Workspace/Harsha/EWIS_Dataset/new_half_v1/annotations/train/**/*.xml",recursive=True))
+        all_img_path = sorted(glob("<specify_paths_to_images>/images/train/**/*.png",recursive=True))
+        all_xml_path = sorted(glob("<specify_paths_to_annotations>/annotations/train/**/*.xml",recursive=True))
         
 
         #Loading train_images and annotations
@@ -248,8 +274,8 @@ for i in range(len(fold_names)):
         process_images(all_img_path, all_xml_path, train_img_dst_folder, crop_size, train_output_json)
 
 
-        all_img_path = sorted(glob("/sf_storage/Workspace/Harsha/EWIS_Dataset/new_half_v1/images/test/**/*.png",recursive=True))
-        all_xml_path = sorted(glob("/sf_storage/Workspace/Harsha/EWIS_Dataset/new_half_v1/annotations/test/**/*.xml",recursive=True))
+        all_img_path = sorted(glob("<specify_paths_to_images>/images/test/**/*.png",recursive=True))
+        all_xml_path = sorted(glob("<specify_paths_to_annotations>/annotations/test/**/*.xml",recursive=True))
         _, _, val_img_paths, val_xml_paths, test_img_paths, test_xml_paths = train_val_test_paths(all_img_path, all_xml_path, fold_names[i])
 
         #Loading val_images and annotations
