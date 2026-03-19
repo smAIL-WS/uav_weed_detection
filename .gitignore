@@ -3,3 +3,7 @@ preprocessing/
 checkpoints/
 *.pth
 *.pt
+*.pkl                  # pickle files
+*.egg-info/            # python build artifacts
+__pycache__/           # python cache
+*.pyc

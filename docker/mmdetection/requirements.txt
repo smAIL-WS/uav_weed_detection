@@ -1,0 +1,84 @@
+# ── Core scientific stack ──────────────────────────────
+numpy==2.1.2
+scipy==1.15.2
+pandas==2.2.3
+scikit-learn==1.6.1
+scikit-image==0.25.2
+matplotlib==3.10.1
+seaborn==0.13.2
+Pillow==11.0.0
+imageio==2.37.0
+tifffile==2025.2.18
+
+# ── Computer Vision / Detection ───────────────────────
+opencv-python==4.11.0.86
+pycocotools==2.0.8
+pycocoevalcap==1.2
+shapely==2.0.7
+fvcore==0.1.5.post20221221
+iopath==0.1.10
+
+# ── Deep Learning / Model utilities ───────────────────
+transformers==4.49.0
+tokenizers==0.21.0
+safetensors==0.5.3
+huggingface-hub==0.35.3
+torchinfo==1.8.0
+fairscale==0.4.13
+timm
+einops
+sympy==1.13.1
+networkx==3.3
+triton==3.2.0
+
+# ── MM framework utilities ─────────────────────────────
+openmim==0.3.9
+model-index==0.1.11
+addict==2.4.0
+yapf==0.43.0
+yacs==0.1.8
+terminaltables==3.1.10
+
+# ── Experiment tracking ────────────────────────────────
+wandb==0.19.8
+optuna==4.2.1
+
+# ── Hyperparameter / Config ────────────────────────────
+python-dotenv==0.15.0
+
+# ── Visualization ──────────────────────────────────────
+plotly==6.1.2
+
+# ── Data / IO utilities ────────────────────────────────
+filelock==3.14.0
+fsspec==2024.6.1
+portalocker==3.1.1
+jsonlines==4.0.0
+tabulate==0.9.0
+rich==13.4.2
+tqdm==4.65.2
+PyYAML==5.3.1
+regex==2024.11.6
+click==8.3.1
+joblib==1.4.2
+nltk==3.9.1
+requests==2.28.2
+urllib3==1.26.20
+six==1.17.0
+packaging==24.2
+pytz==2023.4
+python-dateutil==2.9.0
+tzdata==2025.1
+
+# ── Jupyter / Dev tools (optional, remove if not needed) ──
+ipython
+ipykernel
+jupyter
+jupyterlab
+ipdb==0.13.13
+flake8==3.8.4
+
+# ── Crypto / Cloud (only keep if your code uses these) ────
+cryptography==44.0.2
+protobuf==5.29.3
+pydantic==2.10.6
