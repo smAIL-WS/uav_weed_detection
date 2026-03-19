@@ -98,7 +98,7 @@ def sliding_window_inference_grounding_dino(model, image, image_name, window_siz
     return final_bboxes, final_scores, final_labels
 
 
-def sliding_window_inference_dino_detr(model, image, image_name, window_sizes=(512, 1024), stride=256, nms_iou_threshold=0.3):
+def sliding_window_inference_dino(model, image, image_name, window_sizes=(512, 1024), stride=256, nms_iou_threshold=0.3):
     """
     Perform sliding window inference on an image using the provided model with two window sizes.
 

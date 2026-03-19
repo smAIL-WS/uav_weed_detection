@@ -59,7 +59,7 @@ mim install -v -e .
 ```
 
 ## Inference demo based on pretrained checkpoints
-Follow the instructions provided in the inference demo notebook to run inference on test image based on pre-trained checkpoints. The checkpoints are downloaded from Huggingface space. The demo notebook can be found in this path `inference/demo_inference_notebook.ipynb` 
+Follow the instructions provided in the inference demo notebook to run inference on test image based on pre-trained checkpoints. The checkpoints are downloaded from Huggingface space. The demo notebook can be found here `inference/demo_inference_notebook.ipynb` 
 
 
 ## Dataset preparation
@@ -75,23 +75,26 @@ Follow the instructions provided in the inference demo notebook to run inference
 1. Activate the appropriate conda environment.
 
 ```
-# For Grounding DINO or Retinanet
+# For Grounding DINO, DINO and RetinaNet
 conda activate mmdet_env
 
-# For Yolov8
+# For YOLOv8
 conda activate mmyolo
 ```
 
-2. Train models
+2. Train models (on full_dataset training dataset variant)
 ```
-# Fine-tune Grounding DINO
-python mmdetection/tools/train.py mmdetection/configs/grounding_dino/grounding_dino_swin-t_finetune_8xb2_20e_crop_weed.py
+# Fine-tune Grounding DINO 
+python mmdetection/tools/train.py mmdetection/configs/grounding_dino/gd_full_dataset.py
 
-# Train Retinanet from scratch
-python mmdetection/tools/train.py mmdetection/configs/retinanet/retinanet_r50_fpn_2x_coco_crop_weed.py
+# Train DINO 
+python mmdetection/tools/train.py mmdetection/configs/dino/dino_full_dataset.py
 
-# Train Yolov8 from scratch
-python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_weed.py
+# Train Retinanet
+python mmdetection/tools/train.py mmdetection/configs/retinanet/rn_full_dataset.py
+
+# Train YOLOv8
+python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_full_dataset.py
 ```
 
 ## Inference on held-out testset
@@ -103,7 +106,7 @@ python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_s_fast_1xb12-40e_crop_
 python inference_groundingDino.py
 
 # For inference based on trained Retinanet
-python inference_retinaney.py
+python inference_retinanet.py
 
 # For inference based on trained Yolov8
 python inference_yolov8.py
