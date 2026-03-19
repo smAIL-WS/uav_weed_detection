@@ -15,7 +15,7 @@ Figure 4. Qualitative comparison of object detection performance across differen
 
 ## Installation
 
-### Grounding DINO / Retinanet (MMDetection)
+### Grounding DINO / DINO / Retinanet (MMDetection)
 ```
 conda create -n mmdet_env python=3.10
 conda activate mmdet_env
@@ -39,7 +39,7 @@ pip install -r requirements/multimodal.txt
 ```
 
 
-### Yolov8
+### YOLOv8
 ```
 conda create -n mmyolo_env python=3.8 pytorch==1.10.1 torchvision==0.11.2 cudatoolkit=11.3 -c pytorch -y
 conda activate mmyolo_env
