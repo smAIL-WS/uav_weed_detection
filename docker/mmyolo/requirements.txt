@@ -33,9 +33,9 @@ terminaltables==3.1.10
 prettytable==3.11.0
 ordered-set==4.1.0
 
-# ── Experiment tracking ───────────────────────────────
-wandb==0.22.0
-optuna==4.5.0
+# ── Experiment tracking ────────────────────────────────
+wandb==0.19.8
+optuna==4.2.1
 
 # ── Data / IO utilities ───────────────────────────────
 filelock==3.14.0

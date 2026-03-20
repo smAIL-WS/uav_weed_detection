@@ -13,111 +13,150 @@ Figure 3. Qualitative comparison of object detection performance across differen
 Figure 4. Qualitative comparison of object detection performance across different architectures on a representative test sample from BBCH 15 crop growth stage. The first column illustrates the Ground Truth annotations. Subsequent columns display predictions from Grounding DINO, DINO, RetinaNet, and YOLOv8. The top panel depicts results for models trained on the *full_dataset*, while the bottom panel shows performance for the *quarter_dataset* variant. Blue bounding boxes denote *crop* instances, and red bounding boxes indicate *weed* species.
 ![](readme_images/qa_2.png)
 
-## Installation
+## Installation and Environment Setup
 
-### Grounding DINO / DINO / Retinanet (MMDetection)
-```
-conda create -n mmdet_env python=3.10
-conda activate mmdet_env
+We provide two pre-built Docker images on Docker Hub to reproduce all experiments.
 
-conda install pytorch torchvision -c pytorch
+| Image | Models |
+|---|---|
+| `hswt555har/mmdetection-models:v1.1` | Grounding DINO, RetinaNet, DINO |
+| `hswt555har/mmyolo-models:v1.1` | YOLOv8 |
 
-pip install -U openmim
-pip install sympy==1.13.1 fsspec wandb optuna scikit-image
-mim install mmengine
-mim install "mmcv==2.1.0"
-
-
-cd mmdetection
-pip install -v -e .
-# "-v" means verbose, or more output
-# "-e" means installing a project in editable mode,
-# thus any local modifications made to the code will take effect without reinstallation.
-
-# GDino specific installations
-pip install -r requirements/multimodal.txt
+### Pull Docker Images
+```bash
+docker pull hswt555har/mmdetection-models:v1.1
+docker pull hswt555har/mmyolo-models:v1.1
 ```
 
+### Verify Images
+```bash
+# Verify mmdetection image
+docker run --gpus all hswt555har/mmdetection-models:v1.1 python -c "
+import torch, mmcv, mmdet, transformers
+from mmcv.ops import MultiScaleDeformableAttention
+print('PyTorch  :', torch.__version__)
+print('CUDA     :', torch.cuda.is_available())
+print('GPU      :', torch.cuda.get_device_name(0))
+print('mmcv     :', mmcv.__version__)
+print('mmdet    :', mmdet.__version__)
+print('CUDA ops : OK')
+"
+
+# Verify mmyolo image
+docker run --gpus all hswt555har/mmyolo-models:v1.1 python -c "
+import torch, mmcv, mmyolo
+print('PyTorch  :', torch.__version__)
+print('CUDA     :', torch.cuda.is_available())
+print('GPU      :', torch.cuda.get_device_name(0))
+print('mmcv     :', mmcv.__version__)
+print('mmyolo   : OK')
+"
+```
+
+---
+
+## Running Experiments
+
+Clone the repository and navigate to the root before running any command:
+```bash
+git clone https://github.com/yourusername/your-paper-repo.git
+cd your-paper-repo
+```
+
+### Grounding DINO
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmdetection-models:v1.1 \
+    python /workspace/mmdetection/tools/train.py \
+           /workspace/mmdetection/configs/grounding_dino/gd_full_dataset.py
+```
+
+### RetinaNet
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmdetection-models:v1.1 \
+    python /workspace/mmdetection/tools/train.py \
+           /workspace/mmdetection/configs/retinanet/retinanet_config.py
+```
+
+### DINO
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmdetection-models:v1.1 \
+    python /workspace/mmdetection/tools/train.py \
+           /workspace/mmdetection/configs/dino/dino_config.py
+```
 
 ### YOLOv8
-```
-conda create -n mmyolo_env python=3.8 pytorch==1.10.1 torchvision==0.11.2 cudatoolkit=11.3 -c pytorch -y
-conda activate mmyolo_env
-
-
-pip install openmim
-pip install albumentations==1.3.1 wandb regex optuna
-mim install "mmengine>=0.6.0"
-mim install "mmcv>=2.0.0rc4,<2.1.0"
-mim install "mmdet>=3.0.0,<4.0.0"
-
-cd mmyolo
-# Install albumentations
-pip install -r requirements/albu.txt
-# Install MMYOLO
-mim install -v -e .
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmyolo-models:v1.1 \
+    python /workspace/mmyolo/tools/train.py \
+           /workspace/mmyolo/configs/yolov8/yolov8_config.py
 ```
 
-## Inference demo based on pretrained checkpoints
-Follow the instructions provided in the inference demo notebook to run inference on test image based on pre-trained checkpoints. The checkpoints are downloaded from Huggingface space. The demo notebook can be found here `inference/demo_inference_notebook.ipynb` 
+> **Note:** All training outputs including checkpoints and logs are saved to `work_dirs/` in the repository root.
 
+## Inference on Held-out Testset
 
-## Dataset preparation
+Before running inference, update the following variables in the respective inference scripts:
+- `config_path` — path to the model config file
+- `checkpoint_path` — path to the best model checkpoint
+- `test_image_path` — path to the test image
+- `pred_save_path` — path to save predictions
 
-1. Ensure that the cropped dataset for training, validation and testing is present in  `{mmdetection,mmyolo}/data/ewis/{train_images, val_images, test_images}/` respectively. 
-2. Ensure that annotations for the images in training, validation and testset is present in .json format. For example, `{mmdetection,mmyolo}/data/ewis/{train,val,test}.json`. 
-3. Additionally, include three `.txt` files listing image names for each split. For example, `{mmdetection,mmyolo}/data/ewis/{train,val,test}.txt`
-4. The sample training, validation and testset required to run the training process can be found in `sample_ewis_data/`.
-
-
-## Training models
-
-1. Activate the appropriate conda environment.
-
-```
-# For Grounding DINO, DINO and RetinaNet
-conda activate mmdet_env
-
-# For YOLOv8
-conda activate mmyolo
+### Grounding DINO
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmdetection-models:v1.1 \
+    python /workspace/inference/inference_groundingDino.py
 ```
 
-2. Train models (on full_dataset training dataset variant)
-```
-# Fine-tune Grounding DINO 
-python mmdetection/tools/train.py mmdetection/configs/grounding_dino/gd_full_dataset.py
-
-# Train DINO 
-python mmdetection/tools/train.py mmdetection/configs/dino/dino_full_dataset.py
-
-# Train Retinanet
-python mmdetection/tools/train.py mmdetection/configs/retinanet/rn_full_dataset.py
-
-# Train YOLOv8
-python mmyolo/tools/train.py mmyolo/configs/yolov8/yolov8_full_dataset.py
+### RetinaNet
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmdetection-models:v1.1 \
+    python /workspace/inference/inference_retinanet.py
 ```
 
-## Inference on held-out testset
-
-1. To perform inference on an image from held-out testset based on best model, update the following variables `config_path, checkpoint_path, test_image_path, pred_save_path` in the appropriate inference scripts `inference/inference_groundingDino.py` and run the below command,
-
-```
-# For inference based on fine-tuned Grounding DINO
-python inference_groundingDino.py
-
-# For inference based on trained Retinanet
-python inference_retinanet.py
-
-# For inference based on trained Yolov8
-python inference_yolov8.py
+### YOLOv8
+```bash
+docker run --gpus all \
+    -e WANDB_MODE=disabled \
+    -v $(pwd):/workspace \
+    hswt555har/mmyolo-models:v1.1 \
+    python /workspace/inference/inference_yolov8.py
 ```
 
-The predictions for the test image based on all the three models is now saved in `inference/predictions` in .pt format. 
+The predictions for the test image are saved in `inference/predictions` in `.pt` format.
+
+---
 
 ## Visualization
-To visualize along with respective ground truth annotations and models for the same image, update the following variables `pred_bboxes, pred_scores, pred_labels, gt_file, test_image_path` in the script `inference/prediction_visualization.py` and run the below command,
 
+Before running visualization, update the following variables in `inference/prediction_visualization.py`:
+- `pred_bboxes` — predicted bounding boxes
+- `pred_scores` — predicted confidence scores
+- `pred_labels` — predicted labels
+- `gt_file` — path to ground truth annotations
+- `test_image_path` — path to the test image
+```bash
+docker run --gpus all \
+    -v $(pwd):/workspace \
+    hswt555har/mmdetection-models:v1.1 \
+    python /workspace/inference/prediction_visualization.py
 ```
-python prediction_visualization.py
-```
-The plots are saved in `inference/visualization`
+
+The plots are saved in `inference/visualization`.

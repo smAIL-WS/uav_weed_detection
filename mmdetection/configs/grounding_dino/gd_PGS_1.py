@@ -4,7 +4,7 @@ class_name = (
     'crop',
     'weed',
 )
-data_root = 'mmdetection/data/ewis/final_config_data/'
+data_root = '/workspace/mmdetection/data/ewis/final_config_data/'
 dataset_type = 'CocoDataset'
 default_hooks = dict(
     checkpoint=dict(
@@ -217,7 +217,7 @@ train_dataloader = dict(
         ann_file='train.json',
         backend_args=None,
         data_prefix=dict(img='train_images/'),
-        data_root='mmdetection/data/ewis/final_config_data/',
+        data_root='/workspace/mmdetection/data/ewis/final_config_data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         metainfo=dict(
             classes=(

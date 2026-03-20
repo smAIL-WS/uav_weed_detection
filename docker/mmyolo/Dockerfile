@@ -30,7 +30,10 @@ RUN pip install --no-cache-dir \
 RUN pip install --no-cache-dir \
     "git+https://github.com/smAIL-WS/uav_weed_detection.git@942c9bf446edec41373d45b670ad27a88f755ce0#egg=mmyolo&subdirectory=mmyolo"
 
-# 4. Remaining cleaned dependencies
+# Install wandb explicitly with known working version for Python 3.8
+RUN pip install --no-cache-dir wandb==0.19.8
+
+    # 4. Remaining cleaned dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
