@@ -59,8 +59,8 @@ print('mmyolo   : OK')
 
 Clone the repository and navigate to the root before running any command:
 ```bash
-git clone https://github.com/yourusername/your-paper-repo.git
-cd your-paper-repo
+git clone https://github.com/smAIL-WS/uav_weed_detection.git
+cd uav_weed_detection
 ```
 
 ### Grounding DINO
