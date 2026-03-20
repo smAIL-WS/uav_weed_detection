@@ -17,29 +17,38 @@ RUN pip install --no-cache-dir \
     torchaudio==2.6.0 \
     --index-url https://download.pytorch.org/whl/cu126
 
-# 2. Install mmengine first
+# 2. Install mmengine
 RUN pip install --no-cache-dir mmengine==0.10.7
 
-# 3. Set GPU architecture for H100 BEFORE building mmcv
-ENV TORCH_CUDA_ARCH_LIST="9.0"
+# 3. Set GPU architectures for all common GPUs
+ENV TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
 ENV MMCV_WITH_OPS=1
 ENV FORCE_CUDA=1
 
-# 4. Build mmcv from source — use pip install . NOT pip install -e .
-# -e (editable) requires source directory to stay present
-# pip install . copies built files into site-packages so source can be deleted
+# 4. Build mmcv from source
+# Split into separate RUN steps so each step fails loudly if something goes wrong
 RUN git clone https://github.com/open-mmlab/mmcv.git && \
     cd mmcv && \
-    git checkout v2.1.0 && \
-    pip install --no-cache-dir -r requirements/optional.txt && \
-    pip install --no-cache-dir . && \
-    cd .. && rm -rf mmcv
+    git checkout v2.1.0
 
-# 5. mmdet pinned to exact dev commit
+RUN cd mmcv && \
+    pip install --no-cache-dir -r requirements/optional.txt
+
+RUN cd mmcv && \
+    pip install --no-cache-dir .
+
+# 5. Verify mmcv installed correctly before proceeding
+# This will cause the build to FAIL LOUDLY if mmcv is not installed
+RUN python -c "import mmcv; print('mmcv installed successfully:', mmcv.__version__)"
+
+# 6. Clean up source only after verifying installation
+RUN rm -rf mmcv
+
+# 7. mmdet pinned to exact dev commit
 RUN pip install --no-cache-dir \
     "git+https://github.com/open-mmlab/mmdetection.git@cfd5d3a985b0249de009b67d04f37263e11cdf3d#egg=mmdet"
 
-# 6. Grounding DINO specific deps
+# 8. Grounding DINO specific deps
 RUN pip install --no-cache-dir \
     transformers==4.49.0 \
     torchinfo==1.8.0 \
@@ -47,11 +56,11 @@ RUN pip install --no-cache-dir \
     timm \
     fairscale
 
-# 7. Remaining cleaned dependencies
+# 9. Remaining cleaned dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# 8. Fix git safe directory warning
+# 10. Fix git safe directory warning
 RUN git config --global --add safe.directory /workspace
 
 WORKDIR /workspace
