@@ -139,7 +139,7 @@ custom_hooks = [
         ],
         type='mmdet.PipelineSwitchHook'),
 ]
-data_root = 'mmyolo/data/ewis/final_config_data/'
+data_root = '/workspace/sample_ewis_data/'
 dataset_type = 'YOLOv5CocoDataset'
 deepen_factor = 0.33
 default_hooks = dict(
@@ -384,7 +384,7 @@ test_dataloader = dict(
         ann_file='test.json',
         batch_shapes_cfg=None,
         data_prefix=dict(img='test_images/'),
-        data_root='mmyolo/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         metainfo=dict(
             classes=(
                 'crop',
@@ -436,7 +436,7 @@ test_dataloader = dict(
     pin_memory=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 test_evaluator = dict(
-    ann_file='mmyolo/data/ewis/final_config_data/test.json',
+    ann_file='/workspace/sample_ewis_data/test.json',
     metric='bbox',
     proposal_nums=(
         100,
@@ -489,7 +489,7 @@ train_dataloader = dict(
     dataset=dict(
         ann_file='train.json',
         data_prefix=dict(img='train_images/'),
-        data_root='mmyolo/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         metainfo=dict(
             classes=(
@@ -785,7 +785,7 @@ val_dataloader = dict(
         ann_file='val.json',
         batch_shapes_cfg=None,
         data_prefix=dict(img='val_images/'),
-        data_root='mmyolo/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         metainfo=dict(
             classes=(
                 'crop',
@@ -837,7 +837,7 @@ val_dataloader = dict(
     pin_memory=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
-    ann_file='mmyolo/data/ewis/final_config_data/val.json',
+    ann_file='/workspace/sample_ewis_data/val.json',
     metric='bbox',
     proposal_nums=(
         100,
@@ -855,11 +855,11 @@ visualizer = dict(
     type='mmdet.DetLocalVisualizer',
     vis_backends=[
         dict(type='LocalVisBackend'),
-        dict(
-            init_kwargs=dict(
-                group='yolov8_s_fast_1xb12-40e_coco',
-                project='YOLOv8 - full_dataset'),
-            type='WandbVisBackend'),
+        # dict(
+        #     init_kwargs=dict(
+        #         group='yolov8_s_fast_1xb12-40e_coco',
+        #         project='YOLOv8 - full_dataset'),
+        #     type='WandbVisBackend'),
     ])
 weight_decay = 0.0005
 widen_factor = 0.5

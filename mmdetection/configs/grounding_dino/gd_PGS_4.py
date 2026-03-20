@@ -4,7 +4,7 @@ class_name = (
     'crop',
     'weed',
 )
-data_root = '/workspace/mmdetection/data/ewis/final_config_data/'
+data_root = '/workspace/sample_ewis_data/'
 dataset_type = 'CocoDataset'
 default_hooks = dict(
     checkpoint=dict(
@@ -214,7 +214,7 @@ test_dataloader = dict(
         ann_file='test.json',
         backend_args=None,
         data_prefix=dict(img='test_images/'),
-        data_root='/workspace/mmdetection/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         metainfo=dict(
             classes=(
                 'crop',
@@ -259,7 +259,7 @@ test_dataloader = dict(
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 test_evaluator = dict(
-    ann_file='/workspace/mmdetection/data/ewis/final_config_data/test.json',
+    ann_file='/workspace/sample_ewis_data/test.json',
     backend_args=None,
     format_only=False,
     metric='bbox',
@@ -291,7 +291,7 @@ train_dataloader = dict(
         ann_file='train.json',
         backend_args=None,
         data_prefix=dict(img='train_images/'),
-        data_root='/workspace/mmdetection/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         metainfo=dict(
             classes=(
@@ -626,7 +626,7 @@ val_dataloader = dict(
         ann_file='val.json',
         backend_args=None,
         data_prefix=dict(img='val_images/'),
-        data_root='/workspace/mmdetection/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         metainfo=dict(
             classes=(
                 'crop',
@@ -671,27 +671,27 @@ val_dataloader = dict(
     persistent_workers=True,
     sampler=dict(shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
-    ann_file='/workspace/mmdetection/data/ewis/final_config_data/val.json',
+    ann_file='/workspace/sample_ewis_data/val.json',
     backend_args=None,
     format_only=False,
     metric='bbox',
     type='CocoMetric')
 vis_backends = [
     dict(type='LocalVisBackend'),
-    dict(
-        init_kwargs=dict(
-            group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
-            project='Grounding DINO - PGS_4'),
-        type='WandbVisBackend'),
+    # dict(
+    #     init_kwargs=dict(
+    #         group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
+    #         project='Grounding DINO - PGS_4'),
+    #     type='WandbVisBackend'),
 ]
 visualizer = dict(
     name='visualizer',
     type='DetLocalVisualizer',
     vis_backends=[
         dict(type='LocalVisBackend'),
-        dict(
-            init_kwargs=dict(
-                group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
-                project='Grounding DINO - PGS_4'),
-            type='WandbVisBackend'),
+        # dict(
+        #     init_kwargs=dict(
+        #         group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
+        #         project='Grounding DINO - PGS_4'),
+        #     type='WandbVisBackend'),
     ])

@@ -4,7 +4,7 @@ class_name = (
     'crop',
     'weed',
 )
-data_root = '/workspace/mmdetection/data/ewis/final_config_data/'
+data_root = '/workspace/sample_ewis_data/'
 dataset_type = 'CocoDataset'
 default_hooks = dict(
     checkpoint=dict(
@@ -207,8 +207,81 @@ param_scheduler = [
 resume = False
 runner = dict(max_epochs=18, type='EpochBasedRunner')
 test_cfg = None
-test_dataloader = None
-test_evaluator = None
+test_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        ann_file='test.json',
+        backend_args=None,
+        data_prefix=dict(img='test_images/'),
+        data_root='/workspace/sample_ewis_data/',
+        metainfo=dict(
+            classes=(
+                'crop',
+                'weed',
+            ),
+            palette=[
+                (
+                    220,
+                    20,
+                    60,
+                ),
+                (
+                    220,
+                    20,
+                    60,
+                ),
+            ]),
+        pipeline=[
+            dict(backend_args=None, type='LoadImageFromFile'),
+            dict(keep_ratio=True, scale=(
+                800,
+                1333,
+            ), type='FixScaleResize'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(
+                meta_keys=(
+                    'img_id',
+                    'img_path',
+                    'ori_shape',
+                    'img_shape',
+                    'scale_factor',
+                    'text',
+                    'custom_entities',
+                ),
+                type='PackDetInputs'),
+        ],
+        return_classes=True,
+        test_mode=True,
+        type='CocoDataset'),
+    drop_last=False,
+    num_workers=2,
+    persistent_workers=True,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+test_evaluator = dict(
+    ann_file='/workspace/sample_ewis_data/test.json',
+    backend_args=None,
+    format_only=False,
+    metric='bbox',
+    type='CocoMetric')
+test_pipeline = [
+    dict(backend_args=None, type='LoadImageFromFile'),
+    dict(keep_ratio=True, scale=(
+        800,
+        1333,
+    ), type='FixScaleResize'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(
+        meta_keys=(
+            'img_id',
+            'img_path',
+            'ori_shape',
+            'img_shape',
+            'scale_factor',
+            'text',
+            'custom_entities',
+        ),
+        type='PackDetInputs'),
+]
 train_cfg = dict(max_epochs=18, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_sampler=dict(type='AspectRatioBatchSampler'),
@@ -217,7 +290,7 @@ train_dataloader = dict(
         ann_file='train.json',
         backend_args=None,
         data_prefix=dict(img='train_images/'),
-        data_root='/workspace/mmdetection/data/ewis/final_config_data/',
+        data_root='/workspace/sample_ewis_data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         metainfo=dict(
             classes=(
@@ -546,24 +619,78 @@ train_pipeline = [
         type='PackDetInputs'),
 ]
 val_cfg = None
-val_dataloader = None
-val_evaluator = None
+val_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        ann_file='val.json',
+        backend_args=None,
+        data_prefix=dict(img='val_images/'),
+        data_root='/workspace/sample_ewis_data/',
+        metainfo=dict(
+            classes=(
+                'crop',
+                'weed',
+            ),
+            palette=[
+                (
+                    220,
+                    20,
+                    60,
+                ),
+                (
+                    220,
+                    20,
+                    60,
+                ),
+            ]),
+        pipeline=[
+            dict(backend_args=None, type='LoadImageFromFile'),
+            dict(keep_ratio=True, scale=(
+                800,
+                1333,
+            ), type='FixScaleResize'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(
+                meta_keys=(
+                    'img_id',
+                    'img_path',
+                    'ori_shape',
+                    'img_shape',
+                    'scale_factor',
+                    'text',
+                    'custom_entities',
+                ),
+                type='PackDetInputs'),
+        ],
+        return_classes=True,
+        test_mode=True,
+        type='CocoDataset'),
+    drop_last=False,
+    num_workers=2,
+    persistent_workers=True,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+val_evaluator = dict(
+    ann_file='/workspace/sample_ewis_data/val.json',
+    backend_args=None,
+    format_only=False,
+    metric='bbox',
+    type='CocoMetric')
 vis_backends = [
     dict(type='LocalVisBackend'),
-    dict(
-        init_kwargs=dict(
-            group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
-            project='Grounding DINO - PGS_1'),
-        type='WandbVisBackend'),
+    # dict(
+    #     init_kwargs=dict(
+    #         group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
+    #         project='Grounding DINO - PGS_1'),
+    #     type='WandbVisBackend'),
 ]
 visualizer = dict(
     name='visualizer',
     type='DetLocalVisualizer',
     vis_backends=[
         dict(type='LocalVisBackend'),
-        dict(
-            init_kwargs=dict(
-                group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
-                project='Grounding DINO - PGS_1'),
-            type='WandbVisBackend'),
+        # dict(
+        #     init_kwargs=dict(
+        #         group='grounding_dino_swin-t_finetune_16xb2_1x_coco',
+        #         project='Grounding DINO - PGS_1'),
+        #     type='WandbVisBackend'),
     ])
