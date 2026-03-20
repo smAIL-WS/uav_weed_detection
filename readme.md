@@ -55,6 +55,28 @@ print('mmyolo   : OK')
 
 ---
 
+## Dataset Preparation
+
+A sample dataset is provided in `sample_ewis_data/` in the repository root to help verify your setup. This folder contains sample patches in mmdetection-compatible format and can be used to test your training pipeline before running on the full dataset.
+
+To train on your own data, preprocess your original drone images into patches and format them according to the mmdetection framework. Once prepared, update the `data_root` path in the respective config files:
+```python
+# In mmdetection/configs/grounding_dino/gd_full_dataset.py
+# In mmdetection/configs/retinanet/rn_full_dataset.py
+# In mmdetection/configs/dino/dino_config.py
+# In mmyolo/configs/yolov8/yolov8_config.py
+
+# Replace this with the path to your own dataset
+data_root = '/workspace/sample_ewis_data/'
+
+# Example — if your data is at mmdetection/data/your_dataset/
+data_root = '/workspace/path_to_your_data/'
+```
+
+---
+
+---
+
 ## Running Experiments
 
 Clone the repository and navigate to the root before running any command:
@@ -66,6 +88,7 @@ cd uav_weed_detection
 ### Grounding DINO
 ```bash
 docker run --gpus all \
+    --shm-size=8g \
     -e WANDB_MODE=disabled \
     -v $(pwd):/workspace \
     hswt555har/mmdetection-models:v1.1 \
@@ -76,6 +99,7 @@ docker run --gpus all \
 ### RetinaNet
 ```bash
 docker run --gpus all \
+    --shm-size=8g \
     -e WANDB_MODE=disabled \
     -v $(pwd):/workspace \
     hswt555har/mmdetection-models:v1.1 \
@@ -86,6 +110,7 @@ docker run --gpus all \
 ### DINO
 ```bash
 docker run --gpus all \
+    --shm-size=8g \
     -e WANDB_MODE=disabled \
     -v $(pwd):/workspace \
     hswt555har/mmdetection-models:v1.1 \
@@ -96,6 +121,7 @@ docker run --gpus all \
 ### YOLOv8
 ```bash
 docker run --gpus all \
+    --shm-size=8g \
     -e WANDB_MODE=disabled \
     -v $(pwd):/workspace \
     hswt555har/mmyolo-models:v1.1 \
