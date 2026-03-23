@@ -1,3 +1,5 @@
+The original paper can be accessed here: [link].
+
 # Repository Overview
 This repository contains the codebase for our research on data-efficient weed detection using Grounding DINO, a fine-tuned foundation model designed for open-set object detection in agricultural environments. The project evaluates the model’s performance under varying levels of training data availability and compares it against state-of-the-art detectors such as DINO, RetinaNet and YOLOv8. Using expert-annotated UAV imagery from sorghum and maize fields, the study demonstrates that Grounding DINO can achieve robust and accurate weed detection even when fine-tuned with only a small number of representative images per crop growth stage. The repository includes all training pipelines, experimental configurations, and evaluation scripts to enable full reproducibility and support further research in precision agriculture.
 
@@ -61,9 +63,13 @@ git clone https://github.com/smAIL-WS/uav_weed_detection.git
 cd uav_weed_detection
 ```
 
-## Dataset
+## Dataset Preparation
 
 The EWIS dataset used in this paper is publicly available on Mendeley Data: https://data.mendeley.com/datasets/6j5pxgf437/1. The dataset as published does not include train/test splits or growth stage stratification. Follow the steps below to prepare the dataset for training.
+
+### Sample Dataset
+
+A small sample of the dataset is provided in `sample_ewis_data/` in the repository root. This can be used to verify your setup and test the training pipeline before running on the full dataset. The sample data is already in mmdetection-compatible format and the paths are pre-configured in all config files.
 
 ---
 
@@ -79,53 +85,72 @@ The downloaded dataset is not categorized into train/test splits or stratified b
 ```
 uav_weed_detection/
 └── raw_data/
-    └── train
-        └── images
-            ├── BBCH 12/
-            ├── BBCH 13/
-            └── ...
-        └── annotations
-            ├── BBCH 12/
-            ├── BBCH 13/
-            └── ...
-    └── test
-        └── images
-            ├── BBCH 12/
-            ├── BBCH 13/
-            └── ...
-        └── annotations
-            ├── BBCH 12/
-            ├── BBCH 13/
+    ├── train/
+    │   ├── images/
+    │   │   ├── BBCH_12/
+    │   │   ├── BBCH_13/
+    │   │   └── ...
+    │   └── annotations/
+    │       ├── BBCH_12/
+    │       ├── BBCH_13/
+    │       └── ...
+    └── test/
+        ├── images/
+        │   ├── BBCH_13/
+        │   ├── BBCH_14/
+        │   └── ...
+        └── annotations/
+            ├── BBCH_13/
+            ├── BBCH_14/
             └── ...
 ```
+
+> **Note:** The annotations for 10 additional test set images are not included in the Mendeley Data publication. These annotations are available in the repository under `annotations_additional_images/`.
 
 ---
 
-### Step 3 — Preprocess the Dataset
+### Step 3 — Preprocess the Full Dataset
 
-Run the preprocessing script to generate 512×512 patches from the original drone images, stratified into train and test splits. The script saves the patches in mmdetection-compatible format inside the repository under `ewis_data/`:
+Run `create_patches_generic.py` to generate 512×512 patches from the original drone images. The script splits the data into train, val and test sets and saves the patches in mmdetection-compatible format under `uav_weed_detection/ewis_data/`. Before running, update the path variables at the top of the script to point to your local `raw_data/` directory.
 ```bash
-python some_script.py
+python preprocessing/create_patches_generic.py
 ```
-
 After running the script, the following structure will be created:
 ```
-your-paper-repo/
+uav_weed_detection/
 └── ewis_data/
     ├── train_images/
     ├── val_images/
     ├── test_images/
-    └── ...
+    ├── train.json
+    ├── val.json
+    ├── test.json
+    ├── train.txt
+    ├── val.txt
+    └── test.txt
 ```
+
+
+**Note:** > **Note:** This preprocessing setup corresponds to the final retraining of the model as described in the paper, performed after finding the best hyperparameters via cross-validation. The config files in the respective folders contain the optimized hyperparameters and a fixed number of training epochs - there is no validation set as training runs for a fixed number of epochs. To maintain training pipeline compatibility, the test set is also copied to the `val_images/` folder. The annotation txt files are generated automatically at the end of the script.
 
 ---
 
-### Step 4 — Create Annotation Files
+### Step 4 — Reproduce Cross-Validation Experiments
 
-Run the annotation script to generate the annotation files required by the mmdetection toolbox:
+To reproduce the cross-validation strategies described in the paper, the following scripts are provided. Update the path variables at the top of each script before running.
+
+**Data Efficiency Experiment** — `create_patches_data_efficiency.py` was used to create patches for the full, half, quarter and single image per growth stage training dataset variants following the same 4-fold CV protocol as described in the paper. For the half, quarter and single variants, `sample_dataset.py` was first used to sample the original images before patching:
 ```bash
-python another_script.py
+python preprocessing/sample_dataset.py        # set VARIANT = "half", "quarter" or "single"
+python preprocessing/create_patches_data_efficiency.py
 ```
+
+**Progressive Growth Stage Experiment** — `create_patches_progressive_growth_stage.py` stratifies the patches based on the progressive growth stage experimental setup described in the paper:
+```bash
+python preprocessing/create_patches_progressive_growth_stage.py
+```
+
+Refer to the paper for a detailed explanation of the stratification strategy used in each cross-validation experiment.
 
 ---
 
@@ -146,33 +171,6 @@ This change needs to be made in the following config files:
 - `mmdetection/configs/dino/dino_config.py`
 - `mmyolo/configs/yolov8/yolov8_config.py`
 
----
-
-### Sample Dataset
-
-A small sample of the dataset is provided in `sample_ewis_data/` in the repository root. This can be used to verify your setup and test the training pipeline before running on the full dataset. The sample data is already in mmdetection-compatible format and the path is pre-configured in all config files.
-
----
-
-## Dataset Preparation
-
-A sample dataset is provided in `sample_ewis_data/` in the repository root to help verify your setup. This folder contains sample patches in mmdetection-compatible format and can be used to test your training pipeline before running on the full dataset.
-
-To train on your own data, preprocess your original drone images into patches and format them according to the mmdetection framework. Once prepared, update the `data_root` path in the respective config files:
-```python
-# In mmdetection/configs/grounding_dino/gd_full_dataset.py
-# In mmdetection/configs/retinanet/rn_full_dataset.py
-# In mmdetection/configs/dino/dino_config.py
-# In mmyolo/configs/yolov8/yolov8_config.py
-
-# Replace this with the path to your own dataset
-data_root = '/workspace/sample_ewis_data/'
-
-# Example
-data_root = '/workspace/path_to_your_data/'
-```
-
----
 
 ---
 
@@ -279,3 +277,6 @@ docker run --gpus all \
 ```
 
 The plots are saved in `inference/visualization`.
+
+
+If you encounter any issues with the code or reproducibility, please open a [GitHub issue](https://github.com/smAIL-WS/uav_weed_detection/issues).
