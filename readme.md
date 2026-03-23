@@ -53,6 +53,105 @@ print('mmyolo   : OK')
 "
 ```
 
+## Clone the repository
+
+Clone the repository and navigate to the root before running any command:
+```bash
+git clone https://github.com/smAIL-WS/uav_weed_detection.git
+cd uav_weed_detection
+```
+
+## Dataset
+
+The EWIS dataset used in this paper is publicly available on Mendeley Data: https://data.mendeley.com/datasets/6j5pxgf437/1. The dataset as published does not include train/test splits or growth stage stratification. Follow the steps below to prepare the dataset for training.
+
+---
+
+### Step 1 — Download the Dataset
+
+Download the dataset from Mendeley Data and place it in your local machine.
+
+---
+
+### Step 2 — Categorize the Dataset
+
+The downloaded dataset is not categorized into train/test splits or stratified by growth stages. Refer to `preprocessing/readme.md` in the repository for the categorization details used in this project and organize the data into the respective folders accordingly.
+```
+uav_weed_detection/
+└── raw_data/
+    └── train
+        └── images
+            ├── BBCH 12/
+            ├── BBCH 13/
+            └── ...
+        └── annotations
+            ├── BBCH 12/
+            ├── BBCH 13/
+            └── ...
+    └── test
+        └── images
+            ├── BBCH 12/
+            ├── BBCH 13/
+            └── ...
+        └── annotations
+            ├── BBCH 12/
+            ├── BBCH 13/
+            └── ...
+```
+
+---
+
+### Step 3 — Preprocess the Dataset
+
+Run the preprocessing script to generate 512×512 patches from the original drone images, stratified into train and test splits. The script saves the patches in mmdetection-compatible format inside the repository under `ewis_data/`:
+```bash
+python some_script.py
+```
+
+After running the script, the following structure will be created:
+```
+your-paper-repo/
+└── ewis_data/
+    ├── train_images/
+    ├── val_images/
+    ├── test_images/
+    └── ...
+```
+
+---
+
+### Step 4 — Create Annotation Files
+
+Run the annotation script to generate the annotation files required by the mmdetection toolbox:
+```bash
+python another_script.py
+```
+
+---
+
+### Step 5 — Update Config Files
+
+Once the dataset is prepared, replace the sample dataset path with the full dataset path in all configuration files:
+```python
+# Replace this (sample dataset path)
+data_root = '/workspace/sample_ewis_data/'
+
+# With this (full preprocessed dataset path)
+data_root = '/workspace/ewis_data/'
+```
+
+This change needs to be made in the following config files:
+- `mmdetection/configs/grounding_dino/gd_full_dataset.py`
+- `mmdetection/configs/retinanet/rn_full_dataset.py`
+- `mmdetection/configs/dino/dino_config.py`
+- `mmyolo/configs/yolov8/yolov8_config.py`
+
+---
+
+### Sample Dataset
+
+A small sample of the dataset is provided in `sample_ewis_data/` in the repository root. This can be used to verify your setup and test the training pipeline before running on the full dataset. The sample data is already in mmdetection-compatible format and the path is pre-configured in all config files.
+
 ---
 
 ## Dataset Preparation
@@ -69,7 +168,7 @@ To train on your own data, preprocess your original drone images into patches an
 # Replace this with the path to your own dataset
 data_root = '/workspace/sample_ewis_data/'
 
-# Example — if your data is at mmdetection/data/your_dataset/
+# Example
 data_root = '/workspace/path_to_your_data/'
 ```
 
@@ -78,12 +177,6 @@ data_root = '/workspace/path_to_your_data/'
 ---
 
 ## Running Experiments
-
-Clone the repository and navigate to the root before running any command:
-```bash
-git clone https://github.com/smAIL-WS/uav_weed_detection.git
-cd uav_weed_detection
-```
 
 ### Grounding DINO
 ```bash

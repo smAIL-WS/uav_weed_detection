@@ -1,5 +1,4 @@
 work_dirs/
-preprocessing/
 checkpoints/
 *.pth
 *.pt
