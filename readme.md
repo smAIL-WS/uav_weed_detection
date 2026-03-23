@@ -131,7 +131,7 @@ uav_weed_detection/
 ```
 
 
-**Note:** > **Note:** This preprocessing setup corresponds to the final retraining of the model as described in the paper, performed after finding the best hyperparameters via cross-validation. The config files in the respective folders contain the optimized hyperparameters and a fixed number of training epochs - there is no validation set as training runs for a fixed number of epochs. To maintain training pipeline compatibility, the test set is also copied to the `val_images/` folder. The annotation txt files are generated automatically at the end of the script.
+> **Note:** This preprocessing setup corresponds to the final retraining of the model as described in the paper, performed after finding the best hyperparameters via cross-validation. The config files in the respective folders contain the optimized hyperparameters and a fixed number of training epochs - there is no validation set as training runs for a fixed number of epochs. To maintain training pipeline compatibility, the test set is also copied to the `val_images/` folder. The annotation txt files are generated automatically at the end of the script.
 
 ---
 
@@ -224,59 +224,7 @@ docker run --gpus all \
 
 ## Inference on Held-out Testset
 
-Before running inference, update the following variables in the respective inference scripts:
-- `config_path` — path to the model config file
-- `checkpoint_path` — path to the best model checkpoint
-- `test_image_path` — path to the test image
-- `pred_save_path` — path to save predictions
-
-### Grounding DINO
-```bash
-docker run --gpus all \
-    -e WANDB_MODE=disabled \
-    -v $(pwd):/workspace \
-    hswt555har/mmdetection-models:v1.1 \
-    python /workspace/inference/inference_groundingDino.py
-```
-
-### RetinaNet
-```bash
-docker run --gpus all \
-    -e WANDB_MODE=disabled \
-    -v $(pwd):/workspace \
-    hswt555har/mmdetection-models:v1.1 \
-    python /workspace/inference/inference_retinanet.py
-```
-
-### YOLOv8
-```bash
-docker run --gpus all \
-    -e WANDB_MODE=disabled \
-    -v $(pwd):/workspace \
-    hswt555har/mmyolo-models:v1.1 \
-    python /workspace/inference/inference_yolov8.py
-```
-
-The predictions for the test image are saved in `inference/predictions` in `.pt` format.
-
----
-
-## Visualization
-
-Before running visualization, update the following variables in `inference/prediction_visualization.py`:
-- `pred_bboxes` — predicted bounding boxes
-- `pred_scores` — predicted confidence scores
-- `pred_labels` — predicted labels
-- `gt_file` — path to ground truth annotations
-- `test_image_path` — path to the test image
-```bash
-docker run --gpus all \
-    -v $(pwd):/workspace \
-    hswt555har/mmdetection-models:v1.1 \
-    python /workspace/inference/prediction_visualization.py
-```
-
-The plots are saved in `inference/visualization`.
+To perform inference on a sample image from the testset, use the demo inference notebook available at `inference/demo_inference_notebook`. The notebook provides step-by-step instructions to generate and visualize predictions using pretrained model checkpoints, which can be downloaded from Hugging Face.
 
 
 If you encounter any issues with the code or reproducibility, please open a [GitHub issue](https://github.com/smAIL-WS/uav_weed_detection/issues).

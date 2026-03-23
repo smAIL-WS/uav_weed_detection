@@ -6,3 +6,4 @@ checkpoints/
 *.egg-info/            # python build artifacts
 __pycache__/           # python cache
 *.pyc
+additional_details.md
