@@ -1,19 +1,15 @@
 The original paper can be accessed here: [link].
 
 # Repository Overview
-This repository contains the codebase for our research on data-efficient weed detection using Grounding DINO, a fine-tuned foundation model designed for open-set object detection in agricultural environments. The project evaluates the model’s performance under varying levels of training data availability and compares it against state-of-the-art detectors such as DINO, RetinaNet and YOLOv8. Using expert-annotated UAV imagery from sorghum and maize fields, the study demonstrates that Grounding DINO can achieve robust and accurate weed detection even when fine-tuned with only a small number of representative images per crop growth stage. The repository includes all training pipelines, experimental configurations, and evaluation scripts to enable full reproducibility and support further research in precision agriculture.
 
-Figure 1: Comparative performance for *crop* and *weed* detection for all models and training dataset variants we consider. The values indicate the percentage performance decrease in terms of F1-score and AP relative to the best-performing model (denoted as REF) , where a darker color intensity represents a more significant performance decline.
-![](readme_images/data_efficiency.png)
+# Repository Overview
 
-Figure 2: F1 and AP comparison for the class: *crop* and *weed* of fine-tuned Grounding DINO model across Progressive growth stage experiments on the held-out testset.
-![](readme_images/progressive_growth_stage.png)
+This repository contains the codebase for our research on data-efficient weed detection using Grounding DINO, a fine-tuned foundation model designed for open-set object detection in agricultural environments. The project evaluates the model's performance under varying levels of training data availability and compares it against state-of-the-art detectors such as DINO, RetinaNet and YOLOv8. Using expert-annotated UAV imagery from sorghum and maize fields, the study demonstrates that Grounding DINO can achieve robust and accurate weed detection even when fine-tuned with only a small number of representative images per crop growth stage.
 
-Figure 3. Qualitative comparison of object detection performance across different architectures on a representative test sample from BBCH 13 crop growth stage. The first column illustrates the Ground Truth annotations. Subsequent columns display predictions from Grounding DINO, DINO, RetinaNet, and YOLOv8. The top panel depicts results for models trained on the *full_dataset*, while the bottom panel shows performance for the *quarter_dataset* variant. Blue bounding boxes denote *crop* instances, and red bounding boxes indicate *weed* species. 
-![](readme_images/qa_1.png)
+Given the breadth of experiments conducted in the paper — spanning multiple dataset variants, cross-validation strategies, and inference scenarios — this repository focuses on providing the core training and inference framework necessary to reproduce the key results. Specifically, it includes the preprocessing pipeline to generate 512×512 patches from the original drone imagery following the experimental setup described in the paper, as well as the installation procedure and config files to reproduce the training of Grounding DINO, DINO, RetinaNet and YOLOv8. The config files contain hyperparameters optimized using all available training data following a rigorous cross-validation strategy as described in the paper. For a comprehensive understanding of the full experimental setup, inference across multiple scenarios, and in-depth quantitative analysis, please refer to the paper directly.
 
-Figure 4. Qualitative comparison of object detection performance across different architectures on a representative test sample from BBCH 15 crop growth stage. The first column illustrates the Ground Truth annotations. Subsequent columns display predictions from Grounding DINO, DINO, RetinaNet, and YOLOv8. The top panel depicts results for models trained on the *full_dataset*, while the bottom panel shows performance for the *quarter_dataset* variant. Blue bounding boxes denote *crop* instances, and red bounding boxes indicate *weed* species.
-![](readme_images/qa_2.png)
+A demo inference notebook is also provided, which performs inference on a sample test image using pretrained model checkpoints available on Hugging Face, along with a step-by-step visualization of predictions against ground truth annotations. For the in-depth inference on the full held-out test set and its subsets, two evaluation metrics are used: AP is computed using [Padilla's Object Detection Metrics](https://github.com/rafaelpadilla/Object-Detection-Metrics) repository and F1 score is computed using custom-defined functions provided in `inference/compute_f1.py`.
+
 
 ## Installation and Environment Setup
 
