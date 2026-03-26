@@ -6,7 +6,7 @@ The original paper can be accessed here: [link].
 
 This repository contains the codebase for our research on data-efficient weed detection using Grounding DINO, a fine-tuned foundation model designed for open-set object detection in agricultural environments. The project evaluates the model's performance under varying levels of training data availability and compares it against state-of-the-art detectors such as DINO, RetinaNet and YOLOv8. Using expert-annotated UAV imagery from sorghum and maize fields, the study demonstrates that Grounding DINO can achieve robust and accurate weed detection even when fine-tuned with only a small number of representative images per crop growth stage.
 
-Given the breadth of experiments conducted in the paper — spanning multiple dataset variants, cross-validation strategies, and inference scenarios — this repository focuses on providing the core training and inference framework necessary to reproduce the key results. Specifically, it includes the preprocessing pipeline to generate 512×512 patches from the original drone imagery following the experimental setup described in the paper, as well as the installation procedure and config files to reproduce the training of Grounding DINO, DINO, RetinaNet and YOLOv8. The config files contain hyperparameters optimized using all available training data following a rigorous cross-validation strategy as described in the paper. For a comprehensive understanding of the full experimental setup, inference across multiple scenarios, and in-depth quantitative analysis, please refer to the paper directly.
+Given the breadth of experiments conducted in the paper, spanning multiple dataset variants, cross-validation strategies, and inference scenarios, this repository focuses on providing the core training and inference framework necessary to reproduce the key results. Specifically, it includes the preprocessing pipeline to generate 512×512 patches from the original drone imagery following the experimental setup described in the paper, as well as the installation procedure and config files to reproduce the training of Grounding DINO, DINO, RetinaNet and YOLOv8. The config files contain hyperparameters optimized using all available training data following a rigorous cross-validation strategy as described in the paper. For a comprehensive understanding of the full experimental setup, inference across multiple scenarios, and in-depth quantitative analysis, please refer to the paper directly.
 
 A demo inference notebook is also provided, which performs inference on a sample test image using pretrained model checkpoints available on Hugging Face, along with a step-by-step visualization of predictions against ground truth annotations. For the in-depth inference on the full held-out test set and its subsets, two evaluation metrics are used: AP is computed using [Padilla's Object Detection Metrics](https://github.com/rafaelpadilla/Object-Detection-Metrics) repository and F1 score is computed using custom-defined functions provided in `inference/compute_f1.py`.
 
@@ -224,3 +224,10 @@ To perform inference on a sample image from the testset, use the demo inference 
 
 
 If you encounter any issues with the code or reproducibility, please open a [GitHub issue](https://github.com/smAIL-WS/uav_weed_detection/issues).
+
+## Citing this work
+This work is currently under review:
+```
+Towards Data-efficient Weed Detection via Fine-Tuning Grounding DINO
+Harshavardhan Subramanian, Nikita Genze, Heinz Bernhardt, Dominik G. Grimm, Florian Haselbeck
+```
