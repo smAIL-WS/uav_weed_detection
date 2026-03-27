@@ -13,6 +13,9 @@ import json
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
 from mmdet.structures import DetDataSample
+from mmengine.logging.history_buffer import HistoryBuffer
+import functools
+from PIL import Image
 
 # Initialize the model
 def load_model(config_path, checkpoint_path, device='cuda:0'):
@@ -27,6 +30,11 @@ def load_model(config_path, checkpoint_path, device='cuda:0'):
     Returns:
         model: The initialized model.
     """
+
+    # Force weights_only=False globally for this session
+    _original_load = torch.load
+    torch.load = functools.partial(_original_load, weights_only=False)
+    
     model = init_detector(config_path, checkpoint_path, device=device)
     return model
 

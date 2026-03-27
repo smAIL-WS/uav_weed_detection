@@ -220,7 +220,14 @@ docker run --gpus all \
 
 ## Inference on Held-out Testset
 
-To perform inference on a sample image from the testset, use the demo inference notebook available at `inference/demo_inference_notebook`. The notebook provides step-by-step instructions to generate and visualize predictions using pretrained model checkpoints, which can be downloaded from Hugging Face.
+To perform inference on a sample image from the testset, use the demo inference notebook available at `inference/demo_inference_notebook`. The notebook provides step-by-step instructions to generate and visualize predictions using pretrained model checkpoints, which can be downloaded from Hugging Face. 
+Run notebook inside docker container
+```
+docker run --gpus all -p 8888:8888 \
+  -v $(pwd):/workspace \
+  hswt555har/mmdetection-models:v1.1 \  # Replace the docker image name to run inference on YOLOv8
+  jupyter lab --ip=0.0.0.0 --port=8888 --allow-root --no-browser
+```
 
 
 If you encounter any issues with the code or reproducibility, please open a [GitHub issue](https://github.com/smAIL-WS/uav_weed_detection/issues).
