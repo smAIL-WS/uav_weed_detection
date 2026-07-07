@@ -172,7 +172,7 @@ Once the dataset is prepared, replace the sample dataset path with the full data
 **MMDetection models** — update `data_root` in:
 - `mmdetection/configs/grounding_dino/gd_full_dataset.py`
 - `mmdetection/configs/retinanet/rn_full_dataset.py`
-- `mmdetection/configs/dino/dino_config.py`
+- `mmdetection/configs/dino/dino__full_dataset.py`
 
 > **Note:** All YOLOv26-related files (training scripts, config, preprocessing) are located under the `yolov26/` directory in the repository root.
 
@@ -216,7 +216,7 @@ docker run --gpus all \
     -v $(pwd):/workspace \
     hswt555har/mmdetection-models:v1.1 \
     python /workspace/mmdetection/tools/train.py \
-           /workspace/mmdetection/configs/retinanet/retinanet_config.py
+           /workspace/mmdetection/configs/retinanet/rn_full_dataset.py
 ```
 
 ### DINO
@@ -227,7 +227,7 @@ docker run --gpus all \
     -v $(pwd):/workspace \
     hswt555har/mmdetection-models:v1.1 \
     python /workspace/mmdetection/tools/train.py \
-           /workspace/mmdetection/configs/dino/dino_config.py
+           /workspace/mmdetection/configs/dino/dino_full_dataset.py
 ```
 
 ### YOLOv26
