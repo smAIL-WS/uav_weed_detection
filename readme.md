@@ -2,33 +2,30 @@ The original paper can be accessed here: [link].
 
 # Repository Overview
 
-# Repository Overview
+This repository contains the codebase for our research on **Assessing Training Data Efficiency of Fine-Tuned Object Detection Models for Drone-Based Crop and Weed Detection**. This study assesses the training data efficiency of four state-of-the-art object detection architectures (RetinaNet, YOLOv26, DINO, and Grounding DINO) from two perspectives: data volume efficiency, by progressively reducing annotated training images, and growth stage distribution efficiency, by progressively reducing the growth stages present in training.
 
-This repository contains the codebase for our research on data-efficient weed detection using Grounding DINO, a fine-tuned foundation model designed for open-set object detection in agricultural environments. The project evaluates the model's performance under varying levels of training data availability and compares it against state-of-the-art detectors such as DINO, RetinaNet and YOLOv8. Using expert-annotated UAV imagery from sorghum and maize fields, the study demonstrates that Grounding DINO can achieve robust and accurate weed detection even when fine-tuned with only a small number of representative images per crop growth stage.
-
-Given the breadth of experiments conducted in the paper, spanning multiple dataset variants, cross-validation strategies, and inference scenarios, this repository focuses on providing the core training and inference framework. Specifically, it includes the preprocessing pipeline to generate 512×512 patches from the original drone imagery following the experimental setup described in the paper, as well as the installation procedure and config files to reproduce the training of Grounding DINO, DINO, RetinaNet and YOLOv8. The config files contain hyperparameters optimized using all available training data following a rigorous cross-validation strategy as described in the paper. For a comprehensive understanding of the full experimental setup, inference across multiple scenarios, and in-depth quantitative analysis, please refer to the paper directly.
+Given the breadth of experiments conducted in the paper, spanning multiple dataset variants, cross-validation strategies, and inference scenarios, this repository focuses on providing the core training and inference framework. Specifically, it includes the preprocessing pipeline to generate 512×512 patches from the original drone imagery following the experimental setup described in the paper, as well as the installation procedure and config files to reproduce the training of RetinaNet, YOLOv26, DINO and Grounding DINO. The config files contain hyperparameters optimized using all available training data following a rigorous cross-validation strategy as described in the paper. For a comprehensive understanding of the full experimental setup, inference across multiple scenarios, and in-depth quantitative analysis, please refer to the paper directly.
 
 A demo inference notebook is also provided, which performs inference on a sample test image using pretrained model checkpoints available on Hugging Face, along with a step-by-step visualization of predictions against ground truth annotations. For the in-depth inference on the full held-out test set and its subsets, two evaluation metrics are used: AP is computed using [Padilla's Object Detection Metrics](https://github.com/rafaelpadilla/Object-Detection-Metrics) repository and F1 score is computed using custom-defined functions provided in `inference/compute_f1.py`.
 
 
 ## Installation and Environment Setup
 
-We provide two pre-built Docker images on Docker Hub to reproduce all experiments.
+### RetinaNet, DINO, and Grounding DINO — Docker
+
+We provide a pre-built Docker image on Docker Hub to reproduce experiments for RetinaNet, DINO, and Grounding DINO.
 
 | Image | Models |
 |---|---|
 | `hswt555har/mmdetection-models:v1.1` | Grounding DINO, RetinaNet, DINO |
-| `hswt555har/mmyolo-models:v1.1` | YOLOv8 |
 
-### Pull Docker Images
+#### Pull Docker Image
 ```bash
 docker pull hswt555har/mmdetection-models:v1.1
-docker pull hswt555har/mmyolo-models:v1.1
 ```
 
-### Verify Images
+#### Verify Image
 ```bash
-# Verify mmdetection image
 docker run --gpus all hswt555har/mmdetection-models:v1.1 python -c "
 import torch, mmcv, mmdet, transformers
 from mmcv.ops import MultiScaleDeformableAttention
@@ -39,19 +36,36 @@ print('mmcv     :', mmcv.__version__)
 print('mmdet    :', mmdet.__version__)
 print('CUDA ops : OK')
 "
+```
 
-# Verify mmyolo image
-docker run --gpus all hswt555har/mmyolo-models:v1.1 python -c "
-import torch, mmcv, mmyolo
+---
+
+### YOLOv26 — Conda Environment
+
+YOLOv26 is implemented via the official [Ultralytics](https://docs.ultralytics.com) framework and does not require Docker. Set up a dedicated conda environment as follows:
+
+```bash
+conda create -n yolo26_env python=3.11 -y
+conda activate yolo26_env
+pip install ultralytics optuna pyyaml
+```
+
+#### Verify Installation
+```bash
+python -c "
+import torch
+from ultralytics import YOLO
 print('PyTorch  :', torch.__version__)
 print('CUDA     :', torch.cuda.is_available())
 print('GPU      :', torch.cuda.get_device_name(0))
-print('mmcv     :', mmcv.__version__)
-print('mmyolo   : OK')
+model = YOLO('yolo26l.pt')
+print('YOLOv26l : OK')
 "
 ```
 
-## Clone the repository
+---
+
+## Clone the Repository
 
 Clone the repository and navigate to the root before running any command:
 ```bash
@@ -59,13 +73,15 @@ git clone https://github.com/smAIL-WS/uav_weed_detection.git
 cd uav_weed_detection
 ```
 
+---
+
 ## Dataset Preparation
 
 The EWIS dataset used in this paper is publicly available on Mendeley Data: https://data.mendeley.com/datasets/6j5pxgf437/1. The dataset as published does not include train/test splits or growth stage stratification. Follow the steps below to prepare the dataset for training.
 
 ### Sample Dataset
 
-A small sample of the dataset is provided in `sample_ewis_data/` in the repository root. This can be used to verify your setup and test the training pipeline before running on the full dataset. The sample data is already in mmdetection-compatible format and the paths are pre-configured in all config files.
+A small sample of the dataset is provided in `sample_ewis_data/` in the repository root. This can be used to verify your setup and test the training pipeline before running on the full dataset. The sample data is already in the required format and the paths are pre-configured in all config files.
 
 ---
 
@@ -107,7 +123,7 @@ uav_weed_detection/
 
 ### Step 3 — Preprocess the Full Dataset
 
-Run `create_patches_generic.py` to generate 512×512 patches from the original drone images. The script splits the data into train, val and test sets and saves the patches in mmdetection-compatible format under `uav_weed_detection/ewis_data/`. Before running, update the path variables at the top of the script to point to your local `raw_data/` directory.
+Run `create_patches_generic.py` to generate 512×512 patches from the original drone images. The script splits the data into train, val and test sets and saves the patches in the required format under `uav_weed_detection/ewis_data/`. Before running, update the path variables at the top of the script to point to your local `raw_data/` directory.
 ```bash
 python preprocessing/create_patches_generic.py
 ```
@@ -126,8 +142,7 @@ uav_weed_detection/
     └── test.txt
 ```
 
-
-> **Note:** This preprocessing setup corresponds to the final retraining of the model as described in the paper, performed after finding the best hyperparameters via cross-validation. The config files in the respective folders contain the optimized hyperparameters and a fixed number of training epochs - there is no validation set as training runs for a fixed number of epochs. To maintain training pipeline compatibility, the test set is also copied to the `val_images/` folder. The annotation txt files are generated automatically at the end of the script.
+> **Note:** This preprocessing setup corresponds to the final retraining of the model as described in the paper, performed after finding the best hyperparameters via cross-validation. The config files in the respective folders contain the optimized hyperparameters and a fixed number of training epochs — there is no validation set as training runs for a fixed number of epochs. To maintain training pipeline compatibility, the test set is also copied to the `val_images/` folder. The annotation txt files are generated automatically at the end of the script.
 
 ---
 
@@ -152,7 +167,13 @@ Refer to the paper for a detailed explanation of the stratification strategy use
 
 ### Step 5 — Update Config Files
 
-Once the dataset is prepared, replace the sample dataset path with the full dataset path in all configuration files:
+Once the dataset is prepared, replace the sample dataset path with the full dataset path in the configuration files.
+
+**MMDetection models** — update `data_root` in:
+- `mmdetection/configs/grounding_dino/gd_full_dataset.py`
+- `mmdetection/configs/retinanet/rn_full_dataset.py`
+- `mmdetection/configs/dino/dino_config.py`
+
 ```python
 # Replace this (sample dataset path)
 data_root = '/workspace/sample_ewis_data/'
@@ -161,12 +182,14 @@ data_root = '/workspace/sample_ewis_data/'
 data_root = '/workspace/ewis_data/'
 ```
 
-This change needs to be made in the following config files:
-- `mmdetection/configs/grounding_dino/gd_full_dataset.py`
-- `mmdetection/configs/retinanet/rn_full_dataset.py`
-- `mmdetection/configs/dino/dino_config.py`
-- `mmyolo/configs/yolov8/yolov8_config.py`
+**YOLOv26** — update `base_dir` and `root` in `configs/pipeline_config.yaml`:
+```yaml
+project:
+  base_dir: "/path/to/your/project"
 
+dataset:
+  root: "/path/to/ewis_data"
+```
 
 ---
 
@@ -205,36 +228,67 @@ docker run --gpus all \
            /workspace/mmdetection/configs/dino/dino_config.py
 ```
 
-### YOLOv8
+### YOLOv26
+
+YOLOv26 training uses Bayesian hyperparameter optimisation via Optuna with 4-fold cross-validation. Activate the conda environment before running.
+
+#### Hyperparameter Optimisation (Cross-Validation)
 ```bash
-docker run --gpus all \
-    --shm-size=8g \
-    -e WANDB_MODE=disabled \
-    -v $(pwd):/workspace \
-    hswt555har/mmyolo-models:v1.1 \
-    python /workspace/mmyolo/tools/train.py \
-           /workspace/mmyolo/configs/yolov8/yolov8_config.py
+conda activate yolo26_env
+python scripts/train.py \
+    --variant full_dataset \
+    --config  configs/pipeline_config.yaml
 ```
 
-> **Note:** All training outputs including checkpoints and logs are saved to `work_dirs/` in the repository root.
+Replace `full_dataset` with any dataset variant defined in `pipeline_config.yaml`:
+```bash
+# Example for data efficiency variants
+python scripts/train.py --variant half_dataset_v1 --config configs/pipeline_config.yaml
+python scripts/train.py --variant quarter_dataset_v1 --config configs/pipeline_config.yaml
+python scripts/train.py --variant single_image_per_growth_stage_v1 --config configs/pipeline_config.yaml
+```
+
+The Optuna study is saved to `results/<variant>/optuna/study.db` and is resumable if interrupted.
+
+#### Final Retraining with Best Hyperparameters
+Once hyperparameter optimisation is complete, retrain the model on the full training and validation data using the best configuration:
+```bash
+python scripts/retrain.py \
+    --variant full_dataset \
+    --config  configs/pipeline_config.yaml
+```
+
+The retrained checkpoint is saved to `results/<variant>/final_retrain/`.
+
+> **Note:** All training outputs including checkpoints and logs are saved to `results/` in the repository root.
+
+---
 
 ## Inference on Held-out Testset
 
-To perform inference on a sample image from the testset, use the demo inference notebook available at `inference/demo_inference_notebook`. The notebook provides step-by-step instructions to generate and visualize predictions using pretrained model checkpoints, which can be downloaded from Hugging Face. 
-Run notebook inside docker container
-```
+To perform inference on a sample image from the testset, use the demo inference notebook available at `inference/demo_inference_notebook`. The notebook provides step-by-step instructions to generate and visualize predictions using pretrained model checkpoints, which can be downloaded from Hugging Face.
+
+Run the notebook inside the Docker container (MMDetection models):
+```bash
 docker run --gpus all -p 8888:8888 \
   -v $(pwd):/workspace \
-  hswt555har/mmdetection-models:v1.1 \  # Replace the docker image name to run inference on YOLOv8
+  hswt555har/mmdetection-models:v1.1 \
   jupyter lab --ip=0.0.0.0 --port=8888 --allow-root --no-browser
 ```
 
+For YOLOv26 inference, activate the conda environment and run the notebook directly:
+```bash
+conda activate yolo26_env
+jupyter lab inference/demo_inference_notebook
+```
+
+---
 
 If you encounter any issues with the code or reproducibility, please open a [GitHub issue](https://github.com/smAIL-WS/uav_weed_detection/issues).
 
 ## Citing this work
 This work is currently under review:
 ```
-Towards Data-efficient Weed Detection via Fine-Tuning Grounding DINO
+Assessing Training Data Efficiency of Fine-Tuned Object Detection Models for Drone-Based Crop and Weed Detection
 Harshavardhan Subramanian, Nikita Genze, Heinz Bernhardt, Dominik G. Grimm, Florian Haselbeck
 ```
