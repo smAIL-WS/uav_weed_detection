@@ -150,15 +150,15 @@ uav_weed_detection/
 
 To reproduce the cross-validation strategies described in the paper, the following scripts are provided. Update the path variables at the top of each script before running.
 
-**Data Efficiency Experiment** — `create_patches_data_efficiency.py` was used to create patches for the full, half, quarter and single image per growth stage training dataset variants following the same 4-fold CV protocol as described in the paper. For the half, quarter and single variants, `sample_dataset.py` was first used to sample the original images before patching:
+**Progressive Training Data Reduction Experiment** — `create_patches_PTDR.py` was used to create patches for the full, half, quarter and single image per growth stage training dataset variants following the same 4-fold CV protocol as described in the paper. For the half, quarter and single variants, `sample_dataset.py` was first used to sample the original images before patching:
 ```bash
 python preprocessing/sample_dataset.py        # set VARIANT = "half", "quarter" or "single"
-python preprocessing/create_patches_data_efficiency.py
+python preprocessing/create_patches_PTDR.py
 ```
 
-**Progressive Growth Stage Experiment** — `create_patches_progressive_growth_stage.py` stratifies the patches based on the progressive growth stage experimental setup described in the paper:
+**Progressive Growth Stage Reduction Experiment** — `create_patches_PGSR.py` stratifies the patches based on the progressive growth stage experimental setup described in the paper:
 ```bash
-python preprocessing/create_patches_progressive_growth_stage.py
+python preprocessing/create_patches_PGSR.py
 ```
 
 Refer to the paper for a detailed explanation of the stratification strategy used in each cross-validation experiment.
@@ -174,6 +174,8 @@ Once the dataset is prepared, replace the sample dataset path with the full data
 - `mmdetection/configs/retinanet/rn_full_dataset.py`
 - `mmdetection/configs/dino/dino_config.py`
 
+> **Note:** All YOLOv26-related files (training scripts, config, preprocessing) are located under the `yolov26/` directory in the repository root.
+
 ```python
 # Replace this (sample dataset path)
 data_root = '/workspace/sample_ewis_data/'
@@ -182,7 +184,7 @@ data_root = '/workspace/sample_ewis_data/'
 data_root = '/workspace/ewis_data/'
 ```
 
-**YOLOv26** — update `base_dir` and `root` in `configs/pipeline_config.yaml`:
+**YOLOv26** — update `base_dir` and `root` in `yolov26/configs/pipeline_config.yaml`:
 ```yaml
 project:
   base_dir: "/path/to/your/project"
@@ -230,11 +232,35 @@ docker run --gpus all \
 
 ### YOLOv26
 
-YOLOv26 training uses Bayesian hyperparameter optimisation via Optuna with 4-fold cross-validation. Activate the conda environment before running.
+All YOLOv26 files are located under the `yolov26/` directory. Activate the conda environment before running any command.
+
+#### Dataset Format
+
+YOLOv26 expects data in **YOLO label format** (not COCO JSON). Each fold directory must follow this structure:
+
+```
+yolov26/data/<variant>/
+├── fold_1/
+│   ├── images/
+│   │   ├── train/        ← 512×512 patch images (.png)
+│   │   └── val/          ← 512×512 patch images (.png)
+│   └── labels/
+│       ├── train/        ← YOLO .txt labels (class cx cy w h, normalised)
+│       └── val/
+├── fold_2/
+├── fold_3/
+├── fold_4/
+└── fold_5/
+```
+
+The training script (`yolov26/scripts/train.py`) automatically generates `train_paths.txt` and `val_paths.txt` inside each fold directory at runtime — these are temporary path list files used to construct the Ultralytics data YAML and do not need to be created manually.
+
+> **Note:** Patch images are normalised per-tile (min-max to [0, 255]) and saved as RGB. During inference on full drone images, the same per-tile normalisation and BGR→RGB conversion must be applied before passing tiles to the model, since Ultralytics reads saved patches via PIL (RGB) but numpy arrays via OpenCV (BGR).
 
 #### Hyperparameter Optimisation (Cross-Validation)
 ```bash
 conda activate yolo26_env
+cd yolov26
 python scripts/train.py \
     --variant full_dataset \
     --config  configs/pipeline_config.yaml
@@ -242,8 +268,7 @@ python scripts/train.py \
 
 Replace `full_dataset` with any dataset variant defined in `pipeline_config.yaml`:
 ```bash
-# Example for data efficiency variants
-python scripts/train.py --variant half_dataset_v1 --config configs/pipeline_config.yaml
+python scripts/train.py --variant half_dataset_v1    --config configs/pipeline_config.yaml
 python scripts/train.py --variant quarter_dataset_v1 --config configs/pipeline_config.yaml
 python scripts/train.py --variant single_image_per_growth_stage_v1 --config configs/pipeline_config.yaml
 ```
@@ -251,7 +276,7 @@ python scripts/train.py --variant single_image_per_growth_stage_v1 --config conf
 The Optuna study is saved to `results/<variant>/optuna/study.db` and is resumable if interrupted.
 
 #### Final Retraining with Best Hyperparameters
-Once hyperparameter optimisation is complete, retrain the model on the full training and validation data using the best configuration:
+Once hyperparameter optimisation is complete, retrain the model on the combined training and validation data:
 ```bash
 python scripts/retrain.py \
     --variant full_dataset \
@@ -260,7 +285,7 @@ python scripts/retrain.py \
 
 The retrained checkpoint is saved to `results/<variant>/final_retrain/`.
 
-> **Note:** All training outputs including checkpoints and logs are saved to `results/` in the repository root.
+> **Note:** All YOLOv26 training outputs including checkpoints, Optuna studies, and logs are saved to `yolov26/results/`.
 
 ---
 

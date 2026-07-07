@@ -19,11 +19,15 @@ SEED             = 50
 N_FOLDS          = 5
 VAL_RATIO        = 0.2
 
-# Progressive growth stages — each PGS experiment adds the next stage cumulatively
-# PGS_1 = BBCH_12 only
-# PGS_2 = BBCH_12 + BBCH_13
-# PGS_3 = BBCH_12 + BBCH_13 + BBCH_14
-# ... and so on
+# Progressive Growth Stage Reduction (PGSR):
+# Ordered from lowest to highest BBCH stage.
+# Each PGSR experiment removes the highest stage from the previous one:
+#   PGSR_1 = all stages (BBCH_12 → BBCH_17)
+#   PGSR_2 = BBCH_12 → BBCH_16  (BBCH_17 removed)
+#   PGSR_3 = BBCH_12 → BBCH_15  (BBCH_17, BBCH_16 removed)
+#   PGSR_4 = BBCH_12 → BBCH_14
+#   PGSR_5 = BBCH_12 → BBCH_13
+#   PGSR_6 = BBCH_12 only       (all higher stages removed)
 GROWTH_STAGES = [
     "BBCH_12",
     "BBCH_13",
@@ -202,27 +206,35 @@ def get_images_for_stages(image_root, stages):
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
-# Load test set paths once — shared across all PGS experiments and folds
+# Load test set paths once — shared across all PGSR experiments and folds
 test_img_paths = sorted(glob(os.path.join(TEST_IMAGE_ROOT, "**/*.png"), recursive=True))
 test_xml_paths = [get_xml_path(p, TEST_ANNO_ROOT) for p in test_img_paths]
 
-for pgs_idx in range(len(GROWTH_STAGES)):
-    pgs_name          = f"PGS_{pgs_idx + 1}"
-    cumulative_stages = GROWTH_STAGES[:pgs_idx + 1]
+n_experiments = len(GROWTH_STAGES)   # 6 PGSR experiments
+
+for pgsr_idx in range(n_experiments):
+    pgsr_name = f"PGSR_{pgsr_idx + 1}"
+
+    # PGSR_1: all stages (BBCH_12 → BBCH_17)
+    # PGSR_2: BBCH_12 → BBCH_16  (drop BBCH_17)
+    # ...
+    # PGSR_6: BBCH_12 only
+    n_stages          = n_experiments - pgsr_idx
+    active_stages     = GROWTH_STAGES[:n_stages]
 
     print(f"\n{'='*60}")
-    print(f"Processing {pgs_name} — stages: {cumulative_stages}")
+    print(f"Processing {pgsr_name} — stages: {active_stages}")
     print(f"{'='*60}")
 
-    # Step 1 — Collect all original images for cumulative stages
-    all_img_paths = get_images_for_stages(TRAIN_IMAGE_ROOT, cumulative_stages)
+    # Collect all original images for active stages
+    all_img_paths = get_images_for_stages(TRAIN_IMAGE_ROOT, active_stages)
     if not all_img_paths:
-        print(f"[Warning] No images found for {pgs_name}, skipping.")
+        print(f"[Warning] No images found for {pgsr_name}, skipping.")
         continue
 
     print(f"Total original images: {len(all_img_paths)}")
 
-    # Step 2 — Generate ALL patches in memory first, then split 80/20
+    # Generate ALL patches in memory first, then split 80/20
     all_patches = []
     for img_path in all_img_paths:
         xml_path = get_xml_path(img_path, TRAIN_ANNO_ROOT)
@@ -232,12 +244,12 @@ for pgs_idx in range(len(GROWTH_STAGES)):
 
     print(f"Total patches generated: {len(all_patches)}")
 
-    # Step 3 — Create 5 independent 80/20 random splits on patches
+    # Create N_FOLDS independent 80/20 random splits on patches
     for fold_idx in range(N_FOLDS):
         fold_name = f"fold{fold_idx + 1}"
-        fold_root = os.path.join(OUTPUT_ROOT, f"{pgs_name}_{fold_name}")
+        fold_root = os.path.join(OUTPUT_ROOT, f"{pgsr_name}_{fold_name}")
 
-        print(f"\n  {pgs_name} — {fold_name}")
+        print(f"\n  {pgsr_name} — {fold_name}")
 
         # Independent random split per fold using seed + fold_idx
         random.seed(SEED + fold_idx)
@@ -280,4 +292,4 @@ for pgs_idx in range(len(GROWTH_STAGES)):
                 output_txt=os.path.join(fold_root, f"{split}.txt")
             )
 
-print("\nAll PGS experiments processed successfully.")
+print("\nAll PGSR experiments processed successfully.")
