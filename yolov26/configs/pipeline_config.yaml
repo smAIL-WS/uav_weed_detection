@@ -73,7 +73,7 @@ retrain:
   val: false
 
 inference:
-  window_sizes: [512, 1024]
-  stride: 256
+  window_sizes: [1024]
+  stride: 512
   conf: 0.05
   iou: 0.3
